@@ -1,0 +1,12 @@
+{
+  "CharacterNames": {
+    "type": "arr",
+    "traversal": [
+      {"select": "tag", "value": "table", "indices": [0]},
+      {"select": "tag", "value": "tbody", "indices": [0]},
+      {"select": "tag", "value": "tr", "indices": "all", "flatten": true},
+      {"select": "tag", "value": "td", "indices": [1]},
+      {"select": "attr", "name": "data-name"}
+    ]
+  }
+}
