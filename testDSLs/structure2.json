@@ -1,6 +1,6 @@
 {
   "type": "create",
   "from": "range",
-  "access": [1],
+  "access": [1, 12, 2],
   "unwrapIfSingle": true
 }

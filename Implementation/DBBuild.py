@@ -1,5 +1,5 @@
 class NodeConstants:
-  DATA_NODE_TYPE = ('get', 'create')
+  DATA_NODE_TYPE = ('get', 'create', 'direct')
 
   DATA_NODE_FROM = ('range',)
 
@@ -43,15 +43,20 @@ class DataNode:
 
     if node['type'] == 'create':
       data = DataNode.create(node)
-    else:
+    elif node['type'] == 'get':
       data = DataNode.get(node, references)
-
-    dataLen = len(data)
-
-    if dataLen == 0:
+    elif node['type'] == 'direct':
+      data = node['access']
+    else:
       return None
 
-    if dataLen == 1 and 'unwrapIfSingle' in node and node['unwrapIfSingle']:
-      return data[0]
+    if isinstance(data, (list, tuple)):
+      dataLen = len(data)
+
+      if dataLen == 0:
+        return None
+
+      if dataLen == 1 and 'unwrapIfSingle' in node and node['unwrapIfSingle']:
+        return data[0]
 
     return data
