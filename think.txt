@@ -1,0 +1,19 @@
+json datatypes:
+Number
+String
+Boolean
+Array
+Object
+null
+
+containers:
+Array
+Object
+
+data:
+Number
+String
+Boolean
+null
+
+need to 
