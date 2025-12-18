@@ -1,17 +1,14 @@
-json datatypes:
-Number
-String
-Boolean
-Array
-Object
-null
+plan:
+nodes
 
-containers:
-Array
-Object
+node types:
+array
+dict
+data
 
 data:
-Number
-String
-Boolean
-null
+{
+  "type": "data",
+  "from": "referenceKey",
+  "accessPath": [<keys/indices>]
+}
