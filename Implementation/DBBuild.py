@@ -51,7 +51,7 @@ class DataNode:
     if dataLen == 0:
       return None
 
-    if dataLen == 1:
+    if dataLen == 1 and 'unwrapIfSingle' in node and node['unwrapIfSingle']:
       return data[0]
 
     return data
