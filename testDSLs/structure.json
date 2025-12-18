@@ -1,3 +1,30 @@
-{
-  "Hello": "world"
-}
+[
+  {
+    "type": "arr",
+    "flatten": true,
+    "contents": [
+      {
+        "type": "data",
+        "reference": "a",
+        "access": { "referenceType": "arr", "accessType": "values", "values": "all" }
+      }
+    ]
+  },
+  {
+    "type": "obj",
+    "contents": [
+      {
+        "keys": {
+          "type": "data",
+          "reference": "b",
+          "access": { "referenceType": "arr", "accessType": "values", "values": "all" }
+        },
+        "values": {
+          "type": "data",
+          "reference": "c",
+          "access": { "referenceType": "arr", "accessType": "values", "values": "all" }
+        }
+      }
+    ]
+  }
+]

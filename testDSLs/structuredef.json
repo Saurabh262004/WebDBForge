@@ -1,0 +1,30 @@
+// structure
+{
+  "type": "arr" / "obj" / "data", // some cases might not need this type, for example: keys in dict must be data
+  "flatten": Boolean, // if type is arr
+  "contents": [ // if type is arr
+    structures
+  ],
+  "contents": [
+    {
+      "keys": structures, // must be of type data
+      "values": structures
+    },
+  ],
+  "reference": referenceKey / "__static__" / "__range__", // if type is data | referenceKey is the key that is associated with the reference in the provided references dict
+  "access": {
+    "referenceType": "arr" / "obj" / "data",
+    "accessType": "values" / "keys" / "direct",
+    "values": "all" / [keys / indices], // if referenceType is arr or obj. it'll only return the values that have keys, if the number of keys is less than number of values the remaining values will be thrown away
+    "values": [args for range] // if fererence is __range__
+  }
+}
+
+// array
+{
+  "type": "arr",
+  "flatten": boolean,
+  "contents": [
+    structures
+  ]
+}
