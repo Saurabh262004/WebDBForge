@@ -1,5 +1,3 @@
-
-
 def make(structure: dict, references: dict = None) -> dict:
   data = {}
 
