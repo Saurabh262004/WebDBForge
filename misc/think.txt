@@ -8,7 +8,8 @@ data
 
 data:
 {
-  "type": "data",
-  "from": "referenceKey",
-  "accessPath": [<keys/indices>]
+  "type": "get" | "create",
+  "from": "referenceKey" | <built-in>,
+  "access": "all" | [[<key/index>]] | <node> | <cusotmArgs>,
+  "unwrapIfSingle": boolean
 }

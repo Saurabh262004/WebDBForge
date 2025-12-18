@@ -1,7 +1,7 @@
 import orjson
-from Implementation.DBStructure import make
+from Implementation import DataNode
 
-with open('testDSLs/structure.json', 'rb') as structureFile:
+with open('testDSLs/structure2.json', 'rb') as structureFile:
   structure = orjson.loads(structureFile.read(-1))
 
   references = {
@@ -16,6 +16,6 @@ with open('testDSLs/structure.json', 'rb') as structureFile:
     ]
   }
 
-  DB = make(structure, references)
+  DB = DataNode.eval(structure, references)
 
   print(DB)
