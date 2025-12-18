@@ -1,5 +1,5 @@
 import orjson
-from DBStructure import make
+from Implementation.DBStructure import make
 
 with open('structure.json', 'rb') as structureFile:
   structure = orjson.loads(structureFile.read(-1))
