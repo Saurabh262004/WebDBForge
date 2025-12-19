@@ -1,21 +1,27 @@
 import orjson
-from Implementation import DataNode
+from Implementation import DataNodeEvals
 
 with open('testDSLs/structure2.json', 'rb') as structureFile:
   structure = orjson.loads(structureFile.read(-1))
 
   references = {
-    "a": [
-      1, 2, 3
+    "names": [
+      "Furina",
+      "Hu Tao",
+      "Citlali",
+      "Columbina Hyposelenia"
     ],
-    "b": [
-      '4', '5', '6'
-    ],
-    "c": [
-      6, 7, 8
+    "elements": [
+      "Hydro",
+      "Pyro",
+      "Cryo",
+      "Hydro"
     ]
   }
 
-  DB = DataNode.eval(structure, references)
+  DB = []
+
+  for node in structure:
+    DB.append(DataNodeEvals.eval(node, references))
 
   print(DB)

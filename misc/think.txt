@@ -8,8 +8,22 @@ data
 
 data:
 {
-  "type": "get" | "create",
-  "from": "referenceKey" | <built-in>,
-  "access": "all" | [[<key/index>]] | <node> | <cusotmArgs>,
-  "unwrapIfSingle": boolean
+  "type": "get" | "create", // "get" for retrieving data from provided references
+  "from": "referenceKey" | <built-in>, // referenceKey if "get", <built-in> data type if "create" (eg. list, direct, etc...)
+  "access": "all" | [[<key/index>..]..] | [<key/index>..], // for "get", "all" for directly getting the reference, array of key/index for vertical crawling, 2d array for horizontal
+  "args": <cusotmArgs>, // if reference is a callable or if "create" is used
+  "unwrapIfSingle": boolean // self explanatory
+}
+
+array:
+{
+  "type": "arr",
+  "contents": [<node>..]
+}
+
+dict:
+{
+  "type": "obj",
+  "keys": [<dataNode>..],
+  "values": [<node>..]
 }

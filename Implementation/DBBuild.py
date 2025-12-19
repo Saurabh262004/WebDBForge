@@ -9,7 +9,7 @@ class NodeVerification:
     if (not 'type' in node) or (not isinstance(node['type'], str)):
       return (False, ValueError('"type" in data nodes must contain a valid string'))
 
-    if not node['type'].lower() in NodeConstants.DATA_NODE_TYPE:
+    if not node['type'] in NodeConstants.DATA_NODE_TYPE:
       return (False, ValueError(f'Data nodes must only contain following types: {NodeConstants.DATA_NODE_TYPE}, got: {node['type']}'))
 
     if not 'from' in node or (not isinstance(node['from'], str)):
@@ -23,7 +23,7 @@ class NodeVerification:
 
     return (True,)
 
-class DataNode:
+class DataNodeEvals:
   @staticmethod
   def create(node: dict):
     if node['from'] == 'range':
@@ -31,22 +31,56 @@ class DataNode:
 
   @staticmethod
   def get(node: dict, references: dict):
-    return None
+    referenceName = node['from']
+
+    access = node['access']
+
+    if referenceName not in references:
+      return None
+
+    if access == 'all':
+      return references[referenceName]
+
+    reference = references[referenceName]
+
+    getData = []
+
+    if isinstance(access, (list, tuple)):
+      for accessPoint in access:
+        if isinstance(accessPoint, str) and accessPoint not in reference:
+          getData.append(None)
+          continue
+
+        if isinstance(accessPoint, int) and len(reference) <= accessPoint:
+          getData.append(None)
+          continue
+
+        getData.append(reference[accessPoint])
+
+    return getData
 
   @staticmethod
-  def eval(node: dict, references: dict, validate: bool = True):
+  def eval(node: dict, references: dict = None, validate: bool = True):
     if validate:
       dataNodeVerification = NodeVerification.validateDataNode(node, references)
 
       if not dataNodeVerification[0]:
         raise dataNodeVerification[1]
 
+    else:
+      print('Warning! evaluating data node without verification, things could break without much clarity.')
+
+    access = node['access']
+
+    if 'type' in access and 'from' in access and 'access' in access:
+      access = node['access'] = DataNodeEvals.eval(access, references)
+
     if node['type'] == 'create':
-      data = DataNode.create(node)
+      data = DataNodeEvals.create(node)
     elif node['type'] == 'get':
-      data = DataNode.get(node, references)
+      data = DataNodeEvals.get(node, references)
     elif node['type'] == 'direct':
-      data = node['access']
+      data = access
     else:
       return None
 
