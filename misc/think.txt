@@ -2,28 +2,51 @@ plan:
 nodes
 
 node types:
-array
-dict
-data
+1. data:
+- get
+- create
 
-data:
+2. container:
+- arr
+- dict
+
+3. call:
+- call (yep... just call)
+
+get:
 {
-  "type": "get" | "create", // "get" for retrieving data from provided references
-  "from": "referenceKey" | <built-in>, // referenceKey if "get", <built-in> data type if "create" (eg. list, direct, etc...)
-  "access": "all" | [[<key/index>..]..] | [<key/index>..], // for "get", "all" for directly getting the reference, array of key/index for vertical crawling, 2d array for horizontal
-  "args": <cusotmArgs>, // if reference is a callable or if "create" is used
-  "unwrapIfSingle": boolean // self explanatory
+  "type": "get",
+  "from": <reference-key>,
+  "access": "all" | <key/index-map | node>,
+  "unwrapIfSingle": <boolean>
 }
 
-array:
+create:
+{
+  "type": "create",
+  "from": <built-in-method>,
+  "args": <custom-args | node>,
+  "unwrapIfSingle": <boolean>
+}
+
+arr:
 {
   "type": "arr",
-  "contents": [<node>..]
+  "contents": [<node>..],
+  "unwrapIfSingle": <boolean>
 }
 
 dict:
 {
-  "type": "obj",
+  "type": "dict",
   "keys": [<dataNode>..],
   "values": [<node>..]
+}
+
+call:
+{
+  "type": "call",
+  "func": <reference-key>,
+  "args": <custom-args | node>,
+  "unwrapIfSingle": <boolean>
 }
