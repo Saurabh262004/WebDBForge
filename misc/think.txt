@@ -39,7 +39,7 @@ arr:
 dict:
 {
   "type": "dict",
-  "keys": [<dataNode>..],
+  "keys": [<node>..],
   "values": [<node>..]
 }
 
