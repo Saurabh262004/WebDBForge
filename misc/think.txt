@@ -17,7 +17,7 @@ get:
 {
   "type": "get",
   "from": <reference-key>,
-  "access": "all" | <key/index-map | node>,
+  "access": "direct" | <key/index-map | node>,
   "unwrapIfSingle": <boolean>
 }
 
