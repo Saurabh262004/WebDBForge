@@ -1,51 +1,47 @@
-plan:
-nodes
+Data structuring DSL
 
 node types:
-1. data:
-- get
-- create
 
-2. container:
-- arr
-- dict
-
-3. call:
-- call (yep... just call)
-
-get:
+- traversal
 {
-  "type": "get",
+  "__node__": "traversal",
+  "traversal": [<key | index>..]
+}
+
+- get
+{
+  "__node__": "get",
   "from": <reference-key>,
-  "access": "direct" | <key/index-map | node>,
+  "access": "direct" | <traversal-node | node>,
   "unwrapIfSingle": <boolean>
 }
 
-create:
+- create
 {
-  "type": "create",
+  "__node__": "create",
   "from": <built-in-method>,
   "args": <custom-args | node>,
   "unwrapIfSingle": <boolean>
 }
 
-arr:
+- arr
 {
-  "type": "arr",
+  "__node__": "arr",
   "contents": [<node>..],
+  "unwrapChildren": <boolean>,
   "unwrapIfSingle": <boolean>
 }
 
-dict:
+- dict
 {
-  "type": "dict",
+  "__node__": "dict",
   "keys": [<node>..],
   "values": [<node>..]
 }
 
-call:
+- call
 {
-  "type": "call",
+  "__node__": "call",
   "func": <reference-key>,
   "args": <custom-args | node>,
   "unwrapIfSingle": <boolean>
