@@ -1,18 +1,18 @@
 Data structuring DSL
 
-node types:
+nodes:
 
-- traversal
+- const
 {
-  "__node__": "traversal",
-  "traversal": [<key | index>..]
+  "__node__": "const",
+  "value": "<custom-constant>"
 }
 
 - get
 {
   "__node__": "get",
   "from": <reference-key>,
-  "access": "direct" | <traversal-node | node>,
+  "access": "direct" | [<key | index>..] | <node>,
   "unwrapIfSingle": <boolean>
 }
 
@@ -24,10 +24,10 @@ node types:
   "unwrapIfSingle": <boolean>
 }
 
-- arr
+- list
 {
-  "__node__": "arr",
-  "contents": [<node>..],
+  "__node__": "list",
+  "contents": [<node>..] | <node>,
   "unwrapChildren": <boolean>,
   "unwrapIfSingle": <boolean>
 }
@@ -35,8 +35,15 @@ node types:
 - dict
 {
   "__node__": "dict",
-  "keys": [<node>..],
-  "values": [<node>..]
+  "keys": [<node | key>..] | <node>,
+  "values": [<node>..] | <node>
+}
+
+- zip
+{
+  "__node__": "zip",
+  "sources": { <key>: <node>.. } | <node>,
+  "build": { <key>: <source-key> } | <node>
 }
 
 - call
