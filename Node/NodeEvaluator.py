@@ -151,6 +151,8 @@ class NodeEvaluator:
         if validationData['success']:
           return nodeFnData[node['__node__']]['eval'](node, references, validate)
 
+        print(f'Error with following node: {node}\n')
+
         raise validationData['error']
 
       return nodeFnData[node['__node__']]['eval'](node, references, validate)

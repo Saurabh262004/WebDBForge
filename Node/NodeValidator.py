@@ -49,7 +49,7 @@ class NodeValidator:
     if 'keys' not in node:
       return { 'success': False, 'error': Exception('missing \'keys\' in a dict node') }
 
-    if 'value' not in node:
+    if 'values' not in node:
       return { 'success': False, 'error': Exception('missing \'values\' in a dict node') }
 
     return { 'success': True, 'error': None }
