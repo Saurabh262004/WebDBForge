@@ -14,13 +14,14 @@ class NodeValidator:
     if node['from'] not in references:
       return { 'success': False, 'error': Exception(f'no reference with key {node['from']} found in references') }
 
-    if 'access' not in node:
-      return { 'success': False, 'error': Exception('missing \'access\' in a get node') }
+    if 'access' in node:
+      if isinstance(node['access'], dict) and (not '__node__' in node['access']):
+        return { 'success': False, 'error': Exception(f'access in get node can only be a list of access points or another node which can resolve to be a list of access points') }
 
-    if isinstance(node['access'], str) and not node['acceses'] == 'direct':
-      return { 'successs': False, 'error': Exception(f'invalid value for access in a get node') }
+      if not isinstance(node['access'], (list, dict)):
+        return { 'success': False, 'error': Exception(f'access in get node can only be a list of access points or another node which can resolve to be a list of access points') }
 
-    # implement access points check later
+    # implement more access points check later
 
     return { 'success': True, 'error': None}
 
@@ -34,6 +35,12 @@ class NodeValidator:
   def listNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
     if 'contents' not in node:
       return { 'success': False, 'error': Exception('missing \'contents\' in a list node') }
+
+    if isinstance(node['contents'], dict):
+      if '__node__' not in node['contents']:
+        return { 'success': False, 'error': Exception('in a list-node, contents can only be a list of data or nodes or another node') }
+    elif not isinstance(node['contents'], (list, tuple)):
+      return { 'success': False, 'error': Exception('in a list-node, contents can only be a list of data or nodes or another node') }
 
     return { 'success': True, 'error': None }
 
@@ -52,14 +59,14 @@ class NodeValidator:
     if 'sources' not in node:
       return { 'success': False, 'error': Exception('missing \'sources\' in a zip node') }
 
-    if not isinstance(node['sources']):
+    if not isinstance(node['sources'], dict):
       return { 'success': False, 'error': Exception('sources in a zip node must be a dict or another node') }
 
     if 'build' not in node:
       return { 'success': False, 'error': Exception('missing \'build\' in a zip node') }
 
-    if not isinstance(node['build']):
-      return { 'success': False, 'error': Exception('build in a zip node must be a dict or another node') }
+    if not isinstance(node['build'], (dict, list)):
+      return { 'success': False, 'error': Exception('build in a zip node must be a dict, list of source-keys or another node') }
 
     return { 'success': True, 'error': None }
 
@@ -72,79 +79,3 @@ class NodeValidator:
       return { 'success': False, 'error': Exception(f'no function with key {node['func']} found in references') }
 
     return { 'success': True, 'error': None }
-
-class NodeEvaluator:
-  @staticmethod
-  def constNode(node: dict, validate: bool = True):
-    return None
-
-  @staticmethod
-  def getNode(node: dict, references: dict = None):
-    return None
-
-  @staticmethod
-  def createNode(node: dict, references: dict = None):
-    return None
-
-  @staticmethod
-  def listNode(node: dict, references: dict = None):
-    return None
-
-  @staticmethod
-  def dictNode(node: dict, references: dict = None):
-    return None
-
-  @staticmethod
-  def zipNode(node: dict, references: dict = None):
-    return None
-
-  @staticmethod
-  def callNode(node: dict, references: dict = None):
-    return None
-
-class Node:
-  @staticmethod
-  def eval(node: dict, references: dict = None, validate: bool = True):
-    if node['__node__'] in Node.evalData:
-      if validate:
-        validationData = Node.evalData[node['__node__']]['validate'](node, references)
-
-        if validationData['success']:
-          return Node.evalData[node['__node__']]['eval'](node, references)
-
-        raise validationData['error']
-      
-      return Node.evalData[node['__node__']]['eval'](node, references)
-
-    raise Exception(f'Invalid node type: {node['__node__']}')
-
-evalData = {
-  'const': {
-    'validate': NodeValidator.constNode,
-    'eval': NodeEvaluator.constNode
-  },
-  'get': {
-    'validate': NodeValidator.getNode,
-    'eval': NodeEvaluator.getNode
-  },
-  'create': {
-    'validate': NodeValidator.createNode,
-    'eval': NodeEvaluator.createNode
-  },
-  'list': {
-    'validate': NodeValidator.listNode,
-    'eval': NodeEvaluator.listNode
-  },
-  'dict': {
-    'validate': NodeValidator.dictNode,
-    'eval': NodeEvaluator.dictNode
-  },
-  'zip': {
-    'validate': NodeValidator.zipNode,
-    'eval': NodeEvaluator.zipNode
-  },
-  'call': {
-    'validate': NodeValidator.callNode,
-    'eval': NodeEvaluator.callNode
-  }
-}

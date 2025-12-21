@@ -12,7 +12,7 @@ nodes:
 {
   "__node__": "get",
   "from": <reference-key>,
-  "access": "direct" | [<key | index>..] | <node>,
+  "access": [<key | index>..] | <node>,
   "unwrapIfSingle": <boolean>
 }
 
@@ -27,7 +27,7 @@ nodes:
 - list
 {
   "__node__": "list",
-  "contents": [<node>..] | <node>,
+  "contents": [<node | data>..] | <node>,
   "unwrapChildren": <boolean>,
   "unwrapIfSingle": <boolean>
 }
@@ -43,13 +43,14 @@ nodes:
 {
   "__node__": "zip",
   "sources": { <key>: <node>.. } | <node>,
-  "build": { <key>: <source-key> } | <node>
+  "build": { <key>: <source-key>.. } | [<source-key>..] | <node>
 }
 
 - call
 {
   "__node__": "call",
   "func": <reference-key>,
+  "argsType": "positional" | "kwargs",
   "args": <custom-args | node>,
   "unwrapIfSingle": <boolean>
 }
