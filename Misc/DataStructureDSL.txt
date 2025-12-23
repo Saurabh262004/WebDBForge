@@ -19,8 +19,8 @@ nodes:
 - create
 {
   "__node__": "create",
-  "from": <built-in-method>,
-  "args": <custom-args | node>,
+  "method": <built-in-method>,
+  "kwargs": <dict | node>,
   "unwrapIfSingle": <boolean>
 }
 

@@ -1,4 +1,5 @@
 from Node.NodeValidator import NodeValidator
+from Node.NodeCreate import NODE_METHODS
 
 class NodeEvaluator:
   @staticmethod
@@ -30,8 +31,12 @@ class NodeEvaluator:
 
   @staticmethod
   def createNode(node: dict, references: dict = None, validateInternal: bool = True):
-    # no create methods implemented yet
-    return None
+    if '__node__' in node['kwargs']:
+      kwargs = NodeEvaluator.eval(node['kwargs'], references, validateInternal)
+    else:
+      kwargs = node['kwargs']
+
+    return NODE_METHODS[node['method']](**kwargs)
 
   @staticmethod
   def listNode(node: dict, references: dict = None, validateInternal: bool = True):
