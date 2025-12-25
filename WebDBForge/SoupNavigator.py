@@ -1,0 +1,3 @@
+
+class SoupNavigator:
+  pass
