@@ -149,22 +149,22 @@ class NodeEvaluator:
 
   @staticmethod
   def eval(node: dict, references: dict = None, validate: bool = True):
-    if node['__node__'] in nodeFnData:
+    if node['__node__'] in NODE_FN_DATA:
       if validate:
-        validationData = nodeFnData[node['__node__']]['validate'](node, references)
+        validationData = NODE_FN_DATA[node['__node__']]['validate'](node, references)
 
         if validationData['success']:
-          return nodeFnData[node['__node__']]['eval'](node, references, validate)
+          return NODE_FN_DATA[node['__node__']]['eval'](node, references, validate)
 
         print(f'Error with following node: {node}\n')
 
         raise validationData['error']
 
-      return nodeFnData[node['__node__']]['eval'](node, references, validate)
+      return NODE_FN_DATA[node['__node__']]['eval'](node, references, validate)
 
     raise Exception(f'Invalid node type: {node['__node__']}')
 
-nodeFnData = {
+NODE_FN_DATA = {
   'const': {
     'validate': NodeValidator.constNode,
     'eval': NodeEvaluator.constNode
