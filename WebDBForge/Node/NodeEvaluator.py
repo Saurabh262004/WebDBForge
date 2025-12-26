@@ -148,19 +148,26 @@ class NodeEvaluator:
     return references[node['func']](*args)
 
   @staticmethod
+  def _evalDirect(node: dict, references: dict = None, validate: bool = True):
+    try:
+      return NODE_FN_DATA[node['__node__']]['eval'](node, references, validate)
+    except Exception as e:
+      print(f'Error evaluating node: {node}\n')
+      raise e
+
+  @staticmethod
   def eval(node: dict, references: dict = None, validate: bool = True):
     if node['__node__'] in NODE_FN_DATA:
       if validate:
         validationData = NODE_FN_DATA[node['__node__']]['validate'](node, references)
 
         if validationData['success']:
-          return NODE_FN_DATA[node['__node__']]['eval'](node, references, validate)
+          return NodeEvaluator._evalDirect(node, references, validate)
 
-        print(f'Error with following node: {node}\n')
-
+        print(f'Error evaluating node: {node}\n')
         raise validationData['error']
 
-      return NODE_FN_DATA[node['__node__']]['eval'](node, references, validate)
+      return NodeEvaluator._evalDirect(node, references, validate)
 
     raise Exception(f'Invalid node type: {node['__node__']}')
 
