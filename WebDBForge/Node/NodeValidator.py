@@ -1,3 +1,5 @@
+from WebDBForge.Node.NodeCreate import NODE_METHODS
+
 class NodeValidator:
   @staticmethod
   def constNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
@@ -27,7 +29,8 @@ class NodeValidator:
 
   @staticmethod
   def createNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
-    # implement check later
+    if node['method'] not in NODE_METHODS:
+      return { 'success': False, 'error': Exception(f'no method with name {node['method']} found') }
 
     return { 'success': True, 'error': None }
 
