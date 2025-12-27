@@ -14,15 +14,15 @@ class Fetcher:
     return response.text
 
   @staticmethod
-  def fetchTextBatch(urls: list[str], session: requests.Session = None, stall: float = 2.0) -> list[str]:
+  def fetchTextBatch(manifest: dict[str, str], session: requests.Session = None, stall: float = 2.0) -> dict[str, str]:
     if session is None:
       session = requests.Session()
 
-    responses = []
-
-    for url in urls:
+    responses = {}
+    
+    for key, url in manifest.items():
       time.sleep(stall)
-      responses.append(Fetcher.fetchText(url, session))
+      responses[key] = Fetcher.fetchText(url, session)
 
     return responses
 
@@ -38,14 +38,14 @@ class Fetcher:
     return response.content
 
   @staticmethod
-  def fetchContentBatch(urls: list[str], session: requests.Session = None, stall: float = 2.0) -> list[bytes]:
+  def fetchContentBatch(manifest: dict[str, str], session: requests.Session = None, stall: float = 2.0) -> dict[str, bytes]:
     if session is None:
       session = requests.Session()
 
-    responses = []
+    responses = {}
 
-    for url in urls:
+    for key, url in manifest.items():
       time.sleep(stall)
-      responses.append(Fetcher.fetchContent(url, session))
+      responses[key] = Fetcher.fetchContent(url, session)
 
     return responses
