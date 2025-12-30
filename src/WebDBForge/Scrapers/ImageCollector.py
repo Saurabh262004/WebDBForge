@@ -1,7 +1,7 @@
 import os
 import requests
 from WebDBForge.Sanitizer import Sanitizer
-from WebDBForge.Fetcher import Fetcher
+from WebDBForge.Scrapers.Fetcher import Fetcher
 
 class ImageCollector:
   @staticmethod

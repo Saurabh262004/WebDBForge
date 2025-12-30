@@ -25,13 +25,14 @@ navigation:
 2. find:
 - same as find_all except only returns the first result
 
-// performas operation on provided tag / BeautifulSoup object
-NavNode:
+idea:
+
 {
-  "op": operation,
-  "args": {
-    args..
-  },
-  "next": <NavNode> | list[<NavNode>] // list for defining different navigation for defining different actions if node returns multiple objects.
-  // even if node returns a list of objects and only one "next" is defined, it'll be performed on all of the results
+  "__nav__": Literal["function", "method", "property"],
+  "data": BeautifulSoup | Tag | Nav | Reference,
+  "name": "", # one of function / method or property
+  "kwargs": dict[str, Any], # for function and method
+  "select": int | list[int] # for when you wanna return specific items from a resulted list
 }
+
+Reference: {"__ref__": str}
