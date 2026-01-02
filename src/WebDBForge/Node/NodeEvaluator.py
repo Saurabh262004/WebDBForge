@@ -1,13 +1,14 @@
-from Node.NodeValidator import NodeValidator
-from Node.NodeCreate import NODE_METHODS
+from WebDBForge.Node.NodeValidator import NodeValidator
+from WebDBForge.Node.NodeCreate import NODE_METHODS
+from typing import Any
 
 class NodeEvaluator:
   @staticmethod
-  def constNode(node: dict, references: dict = None, validateInternal: bool = True):
+  def constNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
     return node['value']
 
   @staticmethod
-  def getNode(node: dict, references: dict = None, validateInternal: bool = True):
+  def getNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
     result = references[node['from']]
 
     if 'access' not in node:
@@ -30,7 +31,7 @@ class NodeEvaluator:
     return result
 
   @staticmethod
-  def createNode(node: dict, references: dict = None, validateInternal: bool = True):
+  def createNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
     if '__node__' in node['kwargs']:
       kwargs = NodeEvaluator.eval(node['kwargs'], references, validateInternal)
     else:
@@ -39,7 +40,7 @@ class NodeEvaluator:
     return NODE_METHODS[node['method']](**kwargs)
 
   @staticmethod
-  def listNode(node: dict, references: dict = None, validateInternal: bool = True):
+  def listNode(node: dict, references: dict = None, validateInternal: bool = True) -> list | Any:
     result = []
 
     contents = node['contents']
@@ -66,7 +67,7 @@ class NodeEvaluator:
     return result
 
   @staticmethod
-  def dictNode(node: dict, references: dict = None, validateInternal: bool = True):
+  def dictNode(node: dict, references: dict = None, validateInternal: bool = True) -> dict:
     result = {}
 
     keysListNode = {
@@ -91,7 +92,7 @@ class NodeEvaluator:
     return result
 
   @staticmethod
-  def zipNode(node: dict, references: dict = None, validateInternal: bool = True):
+  def zipNode(node: dict, references: dict = None, validateInternal: bool = True) -> list[dict, list]:
     if '__node__' in node['sources']:
       sources = NodeEvaluator.eval(node['sources'], references, validateInternal)
     else:
@@ -136,7 +137,7 @@ class NodeEvaluator:
     return result
 
   @staticmethod
-  def callNode(node: dict, references: dict = None, validateInternal: bool = True):
+  def callNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
     if isinstance(node['args'], dict) and '__node__' in node['args']:
       args = NodeEvaluator.eval(node['args'], references, validateInternal)
     else:
@@ -148,7 +149,7 @@ class NodeEvaluator:
     return references[node['func']](*args)
 
   @staticmethod
-  def _evalDirect(node: dict, references: dict = None, validate: bool = True):
+  def _evalDirect(node: dict, references: dict = None, validate: bool = True) -> Any:
     try:
       return NODE_FN_DATA[node['__node__']]['eval'](node, references, validate)
     except Exception as e:
@@ -156,7 +157,7 @@ class NodeEvaluator:
       raise e
 
   @staticmethod
-  def eval(node: dict, references: dict = None, validate: bool = True):
+  def eval(node: dict, references: dict = None, validate: bool = True) -> Any:
     if node['__node__'] in NODE_FN_DATA:
       if validate:
         validationData = NODE_FN_DATA[node['__node__']]['validate'](node, references)

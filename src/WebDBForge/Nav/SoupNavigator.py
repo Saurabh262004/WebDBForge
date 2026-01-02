@@ -1,24 +1,55 @@
-import requests
-from bs4 import BeautifulSoup, Tag
+from typing import Any
+import bs4
+from WebDBForge.Nav.NavValidator import NavValidator
 
 class SoupNavigator:
   @staticmethod
-  def navigate(soup: BeautifulSoup | Tag, node: dict):
-    return soup
+  def functionNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+    pass
 
   @staticmethod
-  def find(soup: BeautifulSoup | Tag, kwargs: dict):
-    return soup.find(**kwargs)
-  
-  def findAll(soup: BeautifulSoup | Tag, kwargs: dict):
-    return soup.find_all(**kwargs)
+  def methodNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+    pass
 
-testSite = 'https://webscraper.io/test-sites/tables'
+  @staticmethod
+  def propertyNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+    pass
 
-testData = requests.get(testSite).text
+  @staticmethod
+  def _navDirect(nav: dict, references: dict, validate: bool = True):
+    try:
+      return NAV_FN_DATA[nav['__nav__']]['nav'](nav, references, validate)
+    except Exception as e:
+      print(f'Error evaluating node: {nav}\n')
+      raise e
 
-soup = BeautifulSoup(testData, 'html.parser')
+  @staticmethod
+  def nav(nav: dict, references: dict, validate: bool = True) -> Any:
+    if nav['__nav__'] in NAV_FN_DATA:
+      if validate:
+        validationData = NAV_FN_DATA[nav['__nav__']]['validate'](nav, references)
 
-testNode = {}
+        if validationData['success']:
+          return SoupNavigator._navDirect(nav, references, validate)
 
-print(SoupNavigator.navigate(testNode, soup))
+        print(f'Error evaluating nav: {nav}\n')
+        raise validationData['error']
+
+      return SoupNavigator._navDirect(nav, references, validate)
+
+    raise Exception(f'Invalid nav type: {nav['__nav__']}')
+
+NAV_FN_DATA = {
+  'function': {
+    'validate': NavValidator.functionNav,
+    'nav': SoupNavigator.functionNav
+  },
+  'method': {
+    'validate': NavValidator.methodNav,
+    'nav': SoupNavigator.methodNav
+  },
+  'property': {
+    'validate': NavValidator.propertyNav,
+    'nav': SoupNavigator.propertyNav
+  }
+}
