@@ -30,9 +30,10 @@ idea:
 {
   "__nav__": Literal["function", "method", "property"],
   "data": BeautifulSoup | Tag | Nav | Reference,
-  "name": "", # one of function / method or property
-  "kwargs": dict[str, Any], # for function and method
-  "select": int | list[int] # for when you wanna return specific items from a resulted list
+  "name": "", # one of function / method or property or another nav
+  "args": list[Any], # for function and method or another nav
+  "kwargs": dict[str, Any], # for function and method or another nav
+  "select": int | list[int] # for when you wanna return specific items from a resulted list / or... guess what... another nav
 }
 
-Reference: {"__ref__": str}
+Reference: {"ref": str}
