@@ -5,40 +5,57 @@ from WebDBForge.Nav.NavValidator import NavValidator
 class SoupNavigator:
 	@staticmethod
 	def resolveData(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		if isinstance(nav['data'], dict):
-			if '__nav__' in nav['data']:
-				return SoupNavigator.eval(nav['data'], references, validateInternal)
-			else:
-				return references[nav['data']['ref']]
-		else:
+		if not isinstance(nav['data'], dict):
 			return nav['data']
+
+		if '__nav__' in nav['data']:
+			return SoupNavigator.eval(nav['data'], references, validateInternal)
+
+		return nav['data']
 
 	@staticmethod
 	def resolveName(nav: dict, references: dict, validateInternal: bool = True) -> Any:
 		if isinstance(nav['name'], dict) and '__nav__' in nav['name']:
 			return SoupNavigator.eval(nav['name'], references, validateInternal)
-		else:
-			return nav['name']
+
+		return nav['name']
 
 	@staticmethod
 	def resolveArgs(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		if 'args' in nav:
-			if isinstance(nav['args'], dict) and '__nav__' in nav['args']:
-				return SoupNavigator.eval(nav['args'], references, validateInternal)
-			else:
-				return nav['args']
-		else:
+		if 'args' not in nav:
 			return []
+
+		if isinstance(nav['args'], dict) and '__nav__' in nav['args']:
+			return SoupNavigator.eval(nav['args'], references, validateInternal)
+
+		return nav['args']
 
 	@staticmethod
 	def resolveKwargs(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		if 'kwargs' in nav:
-			if isinstance(nav['kwargs'], dict) and '__nav__' in nav['kwargs']:
-				return SoupNavigator.eval(nav['kwargs'], references, validateInternal)
-			else:
-				return nav['kwargs']
-		else:
+		if 'kwargs' not in nav:
 			return {}
+
+		if isinstance(nav['kwargs'], dict) and '__nav__' in nav['kwargs']:
+			return SoupNavigator.eval(nav['kwargs'], references, validateInternal)
+
+		return nav['kwargs']
+
+	@staticmethod
+	def getResolved(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+		data = SoupNavigator.resolveData(nav, references, validateInternal)
+
+		name = SoupNavigator.resolveName(nav, references, validateInternal)
+
+		args = SoupNavigator.resolveArgs(nav, references, validateInternal)
+
+		kwargs = SoupNavigator.resolveKwargs(nav, references, validateInternal)
+
+		return {
+			'data': data,
+			'name': name,
+			'args': args,
+			'kwargs': kwargs
+		}
 
 	@staticmethod
 	def getSelective(result: Any, nav: dict, references: dict, validateInternal: bool = True) -> Any:
@@ -58,39 +75,25 @@ class SoupNavigator:
 
 	@staticmethod
 	def functionNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		data = SoupNavigator.resolveData(nav, references, validateInternal)
+		resolved = SoupNavigator.getResolved(nav, references, validateInternal)
 
-		name = SoupNavigator.resolveName(nav, references, validateInternal)
-
-		args = SoupNavigator.resolveArgs(nav, references, validateInternal)
-
-		kwargs = SoupNavigator.resolveKwargs(nav, references, validateInternal)
-
-		result = getattr(bs4, name)(data, *args, **kwargs)
+		result = getattr(bs4, resolved['name'])(resolved['data'], *resolved['args'], **resolved['kwargs'])
 
 		return SoupNavigator.getSelective(result, nav, references, validateInternal)
 
 	@staticmethod
 	def methodNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		data = SoupNavigator.resolveData(nav, references, validateInternal)
+		resolved = SoupNavigator.getResolved(nav, references, validateInternal)
 
-		name = SoupNavigator.resolveName(nav, references, validateInternal)
-
-		args = SoupNavigator.resolveArgs(nav, references, validateInternal)
-
-		kwargs = SoupNavigator.resolveKwargs(nav, references, validateInternal)
-
-		result = getattr(data, name)(*args, **kwargs)
+		result = getattr(resolved['data'], resolved['name'])(*resolved['args'], **resolved['kwargs'])
 
 		return SoupNavigator.getSelective(result, nav, references, validateInternal)
 
 	@staticmethod
 	def propertyNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		data = SoupNavigator.resolveData(nav, references, validateInternal)
+		resolved = SoupNavigator.getResolved(nav, references, validateInternal)
 
-		name = SoupNavigator.resolveName(nav, references, validateInternal)
-
-		result = getattr(data, name)
+		result = getattr(resolved['data'], resolved['name'])
 
 		return SoupNavigator.getSelective(result, nav, references, validateInternal)
 
