@@ -41,6 +41,16 @@ class SoupNavigator:
 		return nav['kwargs']
 
 	@staticmethod
+	def resolveSelect(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+		if 'select' not in nav:
+			return None
+
+		if isinstance(nav['select'], dict) and '__nav__' in nav['select']:
+			return SoupNavigator.eval(nav['select'], references, validateInternal)
+
+		return nav['select']
+
+	@staticmethod
 	def getResolved(nav: dict, references: dict, validateInternal: bool = True) -> Any:
 		data = SoupNavigator.resolveData(nav, references, validateInternal)
 
@@ -50,22 +60,20 @@ class SoupNavigator:
 
 		kwargs = SoupNavigator.resolveKwargs(nav, references, validateInternal)
 
+		select = SoupNavigator.resolveSelect(nav, references, validateInternal)
+
 		return {
 			'data': data,
 			'name': name,
 			'args': args,
-			'kwargs': kwargs
+			'kwargs': kwargs,
+			'select': select
 		}
 
 	@staticmethod
-	def getSelective(result: Any, nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		if (not isinstance(result, list)) or ('select' not in nav):
+	def getSelective(result: Any, select: None | list[int]) -> Any:
+		if select is None or not isinstance(result, list):
 			return result
-
-		if isinstance(nav['select'], list):
-			select = nav['select']
-		else:
-			select = SoupNavigator.eval(nav['select'], references, validateInternal)
 
 		selectiveResult = []
 		for index in select:
@@ -74,33 +82,79 @@ class SoupNavigator:
 		return selectiveResult
 
 	@staticmethod
-	def functionNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		resolved = SoupNavigator.getResolved(nav, references, validateInternal)
+	def functionNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
+		if not isinstance(resolvedNav['data'], list):
+			result = getattr(bs4, resolvedNav['name'])(resolvedNav['data'], *resolvedNav['args'], **resolvedNav['kwargs'])
 
-		result = getattr(bs4, resolved['name'])(resolved['data'], *resolved['args'], **resolved['kwargs'])
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
-		return SoupNavigator.getSelective(result, nav, references, validateInternal)
+			return selectiveResult
+
+		results = []
+		for dataItem in resolvedNav['data']:
+			results.append(SoupNavigator.functionNav(
+				{
+					'data': dataItem,
+					'name': resolvedNav['name'],
+					'args': resolvedNav['args'],
+					'kwargs': resolvedNav['kwargs'],
+					'select': resolvedNav['select']
+				}, references, validateInternal
+			))
+
+		return results
 
 	@staticmethod
-	def methodNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		resolved = SoupNavigator.getResolved(nav, references, validateInternal)
+	def methodNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
+		if not isinstance(resolvedNav['data'], list):
+			result = getattr(resolvedNav['data'], resolvedNav['name'])(*resolvedNav['args'], **resolvedNav['kwargs'])
 
-		result = getattr(resolved['data'], resolved['name'])(*resolved['args'], **resolved['kwargs'])
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
-		return SoupNavigator.getSelective(result, nav, references, validateInternal)
+			return selectiveResult
+
+		results = []
+		for dataItem in resolvedNav['data']:
+			results.append(SoupNavigator.methodNav(
+				{
+					'data': dataItem,
+					'name': resolvedNav['name'],
+					'args': resolvedNav['args'],
+					'kwargs': resolvedNav['kwargs'],
+					'select': resolvedNav['select']
+				}, references, validateInternal
+			))
+
+		return results
 
 	@staticmethod
-	def propertyNav(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		resolved = SoupNavigator.getResolved(nav, references, validateInternal)
+	def propertyNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
+		if not isinstance(resolvedNav['data'], list):
+			result = getattr(resolvedNav['data'], resolvedNav['name'])
 
-		result = getattr(resolved['data'], resolved['name'])
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
-		return SoupNavigator.getSelective(result, nav, references, validateInternal)
+			return selectiveResult
+
+		results = []
+		for dataItem in resolvedNav['data']:
+			results.append(SoupNavigator.propertyNav(
+				{
+					'data': dataItem,
+					'name': resolvedNav['name'],
+					'args': resolvedNav['args'],
+					'kwargs': resolvedNav['kwargs'],
+					'select': resolvedNav['select']
+				}, references, validateInternal
+			))
+
+		return results
 
 	@staticmethod
 	def _evalDirect(nav: dict, references: dict, validate: bool = True):
 		try:
-			return NAV_FN_DATA[nav['__nav__']]['nav'](nav, references, validate)
+			resolvedNav = SoupNavigator.getResolved(nav, references, validate)
+			return NAV_FN_DATA[nav['__nav__']]['nav'](resolvedNav, references, validate)
 		except Exception as e:
 			print(f'Error evaluating node: {nav}\n')
 			raise e
