@@ -11,3 +11,7 @@ class NavValidator:
 	@staticmethod
 	def propertyNav(nav: dict, references: dict) -> dict:
 		return {'success': True}
+
+	@staticmethod
+	def dictAccessNav(nav: dict, references: dict) -> dict:
+		return {'success': True}

@@ -11,6 +11,9 @@ class SoupNavigator:
 		if '__nav__' in nav['data']:
 			return SoupNavigator.eval(nav['data'], references, validateInternal)
 
+		if 'ref' in nav['data']:
+			return references[nav['data']['ref']]
+
 		return nav['data']
 
 	@staticmethod
@@ -75,9 +78,12 @@ class SoupNavigator:
 		if select is None or not isinstance(result, list):
 			return result
 
+		resultLen = len(result)
+
 		selectiveResult = []
 		for index in select:
-			selectiveResult.append(result[index])
+			if index < resultLen:
+				selectiveResult.append(result[index])
 
 		return selectiveResult
 
@@ -92,7 +98,7 @@ class SoupNavigator:
 
 		results = []
 		for dataItem in resolvedNav['data']:
-			results.append(SoupNavigator.functionNav(
+			result = SoupNavigator.functionNav(
 				{
 					'data': dataItem,
 					'name': resolvedNav['name'],
@@ -100,14 +106,21 @@ class SoupNavigator:
 					'kwargs': resolvedNav['kwargs'],
 					'select': resolvedNav['select']
 				}, references, validateInternal
-			))
+			)
+
+			results.append(result)
 
 		return results
 
 	@staticmethod
 	def methodNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
 		if not isinstance(resolvedNav['data'], list):
-			result = getattr(resolvedNav['data'], resolvedNav['name'])(*resolvedNav['args'], **resolvedNav['kwargs'])
+			method = getattr(resolvedNav['data'], resolvedNav['name'], None)
+
+			if method is None:
+				return None
+
+			result = method(*resolvedNav['args'], **resolvedNav['kwargs'])
 
 			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
@@ -115,7 +128,7 @@ class SoupNavigator:
 
 		results = []
 		for dataItem in resolvedNav['data']:
-			results.append(SoupNavigator.methodNav(
+			result = SoupNavigator.methodNav(
 				{
 					'data': dataItem,
 					'name': resolvedNav['name'],
@@ -123,14 +136,16 @@ class SoupNavigator:
 					'kwargs': resolvedNav['kwargs'],
 					'select': resolvedNav['select']
 				}, references, validateInternal
-			))
+			)
+
+			results.append(result)
 
 		return results
 
 	@staticmethod
 	def propertyNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
 		if not isinstance(resolvedNav['data'], list):
-			result = getattr(resolvedNav['data'], resolvedNav['name'])
+			result = getattr(resolvedNav['data'], resolvedNav['name'], None)
 
 			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
@@ -138,7 +153,35 @@ class SoupNavigator:
 
 		results = []
 		for dataItem in resolvedNav['data']:
-			results.append(SoupNavigator.propertyNav(
+			result = SoupNavigator.propertyNav(
+				{
+					'data': dataItem,
+					'name': resolvedNav['name'],
+					'args': resolvedNav['args'],
+					'kwargs': resolvedNav['kwargs'],
+					'select': resolvedNav['select']
+				}, references, validateInternal
+			)
+
+			results.append(result)
+
+		return results
+
+	@staticmethod
+	def dictAccessNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
+		if not isinstance(resolvedNav['data'], list):
+			if resolvedNav['name'] in resolvedNav['data']:
+				result = resolvedNav['data'][resolvedNav['name']]
+			else:
+				result = None
+
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
+
+			return selectiveResult
+
+		results = []
+		for dataItem in resolvedNav['data']:
+			results.append(SoupNavigator.dictAccessNav(
 				{
 					'data': dataItem,
 					'name': resolvedNav['name'],
@@ -151,13 +194,42 @@ class SoupNavigator:
 		return results
 
 	@staticmethod
-	def _evalDirect(nav: dict, references: dict, validate: bool = True):
+	def _handleThen(then: dict, result: Any, references: dict, validate: bool = True) -> Any:
+		if isinstance(then, dict):
+			if not isinstance(result, list):
+				newThen = dict(then)
+				newThen['data'] = result
+
+				return SoupNavigator.eval(newThen, references, validate)
+
+			results = []
+			for dataItem in result:
+				results.append(SoupNavigator._handleThen(then, dataItem, references, validate))
+
+			return results
+
+		results = []
+		for thenPart in then:
+			results.append(SoupNavigator._handleThen(thenPart, result, references, validate))
+
+		return results
+
+	@staticmethod
+	def _evalDirect(nav: dict, references: dict, validate: bool = True) -> Any:
 		try:
 			resolvedNav = SoupNavigator.getResolved(nav, references, validate)
-			return NAV_FN_DATA[nav['__nav__']]['nav'](resolvedNav, references, validate)
+
+			result = NAV_FN_DATA[nav['__nav__']]['nav'](resolvedNav, references, validate)
+
+			if ('then' not in nav) or (nav['then'] is None) or (isinstance(nav['then'], (dict, list)) and len(nav['then']) == 0):
+				return result
+
+			return SoupNavigator._handleThen(nav['then'], result, references, validate)
+
 		except Exception as e:
-			print(f'Error evaluating node: {nav}\n')
-			raise e
+			print(nav['data'])
+			# print(f'Error evaluating nav: {nav}\n')
+			# raise e
 
 	@staticmethod
 	def eval(nav: dict, references: dict, validate: bool = True) -> Any:
@@ -187,5 +259,9 @@ NAV_FN_DATA = {
 	'property': {
 		'validate': NavValidator.propertyNav,
 		'nav': SoupNavigator.propertyNav
+	},
+	'dictAccess': {
+		'validate': NavValidator.dictAccessNav,
+		'nav': SoupNavigator.dictAccessNav
 	}
 }
