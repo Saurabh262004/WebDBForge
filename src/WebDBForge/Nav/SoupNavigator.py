@@ -98,15 +98,10 @@ class SoupNavigator:
 
 		results = []
 		for dataItem in resolvedNav['data']:
-			result = SoupNavigator.functionNav(
-				{
-					'data': dataItem,
-					'name': resolvedNav['name'],
-					'args': resolvedNav['args'],
-					'kwargs': resolvedNav['kwargs'],
-					'select': resolvedNav['select']
-				}, references, validateInternal
-			)
+			newNav = dict(resolvedNav)
+			newNav['data'] = dataItem
+
+			result = SoupNavigator.functionNav(newNav, references, validateInternal)
 
 			results.append(result)
 
@@ -128,15 +123,10 @@ class SoupNavigator:
 
 		results = []
 		for dataItem in resolvedNav['data']:
-			result = SoupNavigator.methodNav(
-				{
-					'data': dataItem,
-					'name': resolvedNav['name'],
-					'args': resolvedNav['args'],
-					'kwargs': resolvedNav['kwargs'],
-					'select': resolvedNav['select']
-				}, references, validateInternal
-			)
+			newNav = dict(resolvedNav)
+			newNav['data'] = dataItem
+
+			result = SoupNavigator.methodNav(newNav, references, validateInternal)
 
 			results.append(result)
 
@@ -153,15 +143,10 @@ class SoupNavigator:
 
 		results = []
 		for dataItem in resolvedNav['data']:
-			result = SoupNavigator.propertyNav(
-				{
-					'data': dataItem,
-					'name': resolvedNav['name'],
-					'args': resolvedNav['args'],
-					'kwargs': resolvedNav['kwargs'],
-					'select': resolvedNav['select']
-				}, references, validateInternal
-			)
+			newNav = dict(resolvedNav)
+			newNav['data'] = dataItem
+
+			result = SoupNavigator.propertyNav(newNav, references, validateInternal)
 
 			results.append(result)
 
@@ -181,15 +166,12 @@ class SoupNavigator:
 
 		results = []
 		for dataItem in resolvedNav['data']:
-			results.append(SoupNavigator.dictAccessNav(
-				{
-					'data': dataItem,
-					'name': resolvedNav['name'],
-					'args': resolvedNav['args'],
-					'kwargs': resolvedNav['kwargs'],
-					'select': resolvedNav['select']
-				}, references, validateInternal
-			))
+			newNav = dict(resolvedNav)
+			newNav['data'] = dataItem
+
+			result = SoupNavigator.dictAccessNav(newNav, references, validateInternal)
+
+			results.append(result)
 
 		return results
 
