@@ -55,22 +55,12 @@ class SoupNavigator:
 
 	@staticmethod
 	def getResolved(nav: dict, references: dict, validateInternal: bool = True) -> Any:
-		data = SoupNavigator.resolveData(nav, references, validateInternal)
-
-		name = SoupNavigator.resolveName(nav, references, validateInternal)
-
-		args = SoupNavigator.resolveArgs(nav, references, validateInternal)
-
-		kwargs = SoupNavigator.resolveKwargs(nav, references, validateInternal)
-
-		select = SoupNavigator.resolveSelect(nav, references, validateInternal)
-
 		return {
-			'data': data,
-			'name': name,
-			'args': args,
-			'kwargs': kwargs,
-			'select': select
+			'data': SoupNavigator.resolveData(nav, references, validateInternal),
+			'name': SoupNavigator.resolveName(nav, references, validateInternal),
+			'args': SoupNavigator.resolveArgs(nav, references, validateInternal),
+			'kwargs': SoupNavigator.resolveKwargs(nav, references, validateInternal),
+			'select': SoupNavigator.resolveSelect(nav, references, validateInternal)
 		}
 
 	@staticmethod
@@ -197,7 +187,7 @@ class SoupNavigator:
 		return results
 
 	@staticmethod
-	def _evalDirect(nav: dict, references: dict, validate: bool = True) -> Any:
+	def _evalDirect(nav: dict, references: dict, validate: bool = True, logFile: str = None) -> Any:
 		try:
 			resolvedNav = SoupNavigator.getResolved(nav, references, validate)
 
@@ -209,25 +199,30 @@ class SoupNavigator:
 			return SoupNavigator._handleThen(nav['then'], result, references, validate)
 
 		except Exception as e:
-			print(nav['data'])
-			# print(f'Error evaluating nav: {nav}\n')
-			# raise e
+			if logFile is None:
+				raise e
+
+			file = open(logFile, 'a')
+			file.write(f'Error evaluating nav: {nav}\nException: {str(e)}\n\n')
+			file.close()
+
+			raise e
 
 	@staticmethod
-	def eval(nav: dict, references: dict, validate: bool = True) -> Any:
+	def eval(nav: dict, references: dict, validate: bool = True, logFile: str =  None) -> Any:
 		if nav['__nav__'] not in NAV_FN_DATA:
 			raise Exception(f'Invalid nav type: {nav['__nav__']}')
 
 		if not validate:
-			return SoupNavigator._evalDirect(nav, references, validate)
+			return SoupNavigator._evalDirect(nav, references, validate, logFile)
 
 		validationData = NAV_FN_DATA[nav['__nav__']]['validate'](nav, references)
 
-		if not validationData['success']:
+		if validationData['success']:
 			print(f'Error evaluating nav: {nav}\n')
 			raise validationData['error']
 
-		return SoupNavigator._evalDirect(nav, references, validate)
+		return SoupNavigator._evalDirect(nav, references, validate, logFile)
 
 NAV_FN_DATA = {
 	'function': {
