@@ -63,6 +63,29 @@ class SoupNavigator:
 		}
 
 	@staticmethod
+	def unwrap(result: Any, recursive: bool = False) -> Any:
+		if not recursive:
+			if isinstance(result, list) and len(result) == 1:
+				return result[0]
+			return result
+
+		while isinstance(result, list) and len(result) == 1:
+			result = result[0]
+
+		return result
+
+	@staticmethod
+	def handleUnwrap(nav: Any, result: Any) -> Any:
+		unwrap = nav.get('unwrap', None)
+
+		if unwrap is None or unwrap.lower() not in ('shallow', 'recursive'):
+			return result
+
+		unwrapRecursive = unwrap.lower() == 'recursive'
+
+		return SoupNavigator.unwrap(result, unwrapRecursive)
+
+	@staticmethod
 	def getSelective(result: Any, select: None | list[int]) -> Any:
 		if select is None or not isinstance(result, list):
 			return result
@@ -83,7 +106,9 @@ class SoupNavigator:
 
 			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
-			return selectiveResult
+			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
+
+			return unwrappedResult
 
 		results = []
 		for dataItem in resolvedNav['data']:
@@ -108,7 +133,9 @@ class SoupNavigator:
 
 			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
-			return selectiveResult
+			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
+
+			return unwrappedResult
 
 		results = []
 		for dataItem in resolvedNav['data']:
@@ -128,7 +155,9 @@ class SoupNavigator:
 
 			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
-			return selectiveResult
+			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
+
+			return unwrappedResult
 
 		results = []
 		for dataItem in resolvedNav['data']:
@@ -151,7 +180,9 @@ class SoupNavigator:
 
 			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
 
-			return selectiveResult
+			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
+
+			return unwrappedResult
 
 		results = []
 		for dataItem in resolvedNav['data']:
@@ -209,7 +240,7 @@ class SoupNavigator:
 	@staticmethod
 	def eval(nav: dict, references: dict, validate: bool = True, logFile: str =  None) -> Any:
 		if nav['__nav__'] not in NAV_FN_DATA:
-			raise Exception(f'Invalid nav type: {nav['__nav__']}')
+			raise Exception(f'Invalid nav type: {nav["__nav__"]}')
 
 		if not validate:
 			return SoupNavigator._evalDirect(nav, references, validate, logFile)
@@ -217,10 +248,10 @@ class SoupNavigator:
 		validationData = NAV_FN_DATA[nav['__nav__']]['validate'](nav, references)
 
 		if validationData['success']:
-			print(f'Error evaluating nav: {nav}\n')
-			raise validationData['error']
+			return SoupNavigator._evalDirect(nav, references, validate, logFile)
 
-		return SoupNavigator._evalDirect(nav, references, validate, logFile)
+		print(f'Error evaluating nav: {nav}\n')
+		raise validationData['error']
 
 NAV_FN_DATA = {
 	'function': {
