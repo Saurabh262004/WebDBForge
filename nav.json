@@ -1,0 +1,15 @@
+{
+	"elements": {
+		"__nav__": ["function", "method", "property", "dictAccess"],
+		"data": "BeautifulSoup | Tag | Nav | Any",
+		"name": ["bs4 attribute", "data object attribute", "data object attribute", "dict key"],
+		"args": "list[Any] | Nav -> positional arguments for function and method #optional",
+		"kwargs": "dict[str, Any] | Nav -> keyword arguments for function and method #optional",
+		"select": "list[int] | Nav -> if result of the nav is multiple elements, returns only the elements with given index #optional",
+		"unwrap": "Literal['shallow', 'recursive'] -> unwraps the result if it's length is 1 #optional"
+	},
+	"function": ["__nav__", "data", "name", "args", "kwargs", "select", "unwrap"],
+	"method": ["__nav__", "data", "name", "args", "kwargs", "select", "unwrap"],
+	"property": ["__nav__", "data", "name", "select", "unwrap"],
+	"dictAccess": ["__nav__", "data", "name", "select", "unwrap"]
+}
