@@ -4,12 +4,12 @@ from WebDBForge.Nav.NavValidator import NavValidator
 
 class SoupNavigator:
 	@staticmethod
-	def resolveData(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+	def resolveData(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
 		if not isinstance(nav['data'], dict):
 			return nav['data']
 
 		if '__nav__' in nav['data']:
-			return SoupNavigator.eval(nav['data'], references, validateInternal)
+			return SoupNavigator.eval(nav['data'], references, validateInternal, logFile)
 
 		if 'ref' in nav['data']:
 			return references[nav['data']['ref']]
@@ -17,50 +17,49 @@ class SoupNavigator:
 		return nav['data']
 
 	@staticmethod
-	def resolveName(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+	def resolveName(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
 		if isinstance(nav['name'], dict) and '__nav__' in nav['name']:
-			return SoupNavigator.eval(nav['name'], references, validateInternal)
+			return SoupNavigator.eval(nav['name'], references, validateInternal, logFile)
 
 		return nav['name']
 
 	@staticmethod
-	def resolveArgs(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+	def resolveArgs(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
 		if 'args' not in nav:
 			return []
 
 		if isinstance(nav['args'], dict) and '__nav__' in nav['args']:
-			return SoupNavigator.eval(nav['args'], references, validateInternal)
-
+			return SoupNavigator.eval(nav['args'], references, validateInternal, logFile)
 		return nav['args']
 
 	@staticmethod
-	def resolveKwargs(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+	def resolveKwargs(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
 		if 'kwargs' not in nav:
 			return {}
 
 		if isinstance(nav['kwargs'], dict) and '__nav__' in nav['kwargs']:
-			return SoupNavigator.eval(nav['kwargs'], references, validateInternal)
+			return SoupNavigator.eval(nav['kwargs'], references, validateInternal, logFile)
 
 		return nav['kwargs']
 
 	@staticmethod
-	def resolveSelect(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+	def resolveSelect(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
 		if 'select' not in nav:
 			return None
 
 		if isinstance(nav['select'], dict) and '__nav__' in nav['select']:
-			return SoupNavigator.eval(nav['select'], references, validateInternal)
+			return SoupNavigator.eval(nav['select'], references, validateInternal, logFile)
 
 		return nav['select']
 
 	@staticmethod
-	def getResolved(nav: dict, references: dict, validateInternal: bool = True) -> Any:
+	def getResolved(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
 		return {
-			'data': SoupNavigator.resolveData(nav, references, validateInternal),
-			'name': SoupNavigator.resolveName(nav, references, validateInternal),
-			'args': SoupNavigator.resolveArgs(nav, references, validateInternal),
-			'kwargs': SoupNavigator.resolveKwargs(nav, references, validateInternal),
-			'select': SoupNavigator.resolveSelect(nav, references, validateInternal)
+			'data': SoupNavigator.resolveData(nav, references, validateInternal, logFile),
+			'name': SoupNavigator.resolveName(nav, references, validateInternal, logFile),
+			'args': SoupNavigator.resolveArgs(nav, references, validateInternal, logFile),
+			'kwargs': SoupNavigator.resolveKwargs(nav, references, validateInternal, logFile),
+			'select': SoupNavigator.resolveSelect(nav, references, validateInternal, logFile)
 		}
 
 	@staticmethod
@@ -166,24 +165,23 @@ class SoupNavigator:
 		return results
 
 	@staticmethod
-	def _handleThen(then: dict, result: Any, references: dict, validate: bool = True) -> Any:
+	def _handleThen(then: dict, result: Any, references: dict, validate: bool = True, logFile: str = None) -> Any:
 		if isinstance(then, dict):
 			if not isinstance(result, list):
 				newThen = dict(then)
 				newThen['data'] = result
 
-				return SoupNavigator.eval(newThen, references, validate)
+				return SoupNavigator.eval(newThen, references, validate, logFile)
 
 			results = []
 			for dataItem in result:
-				results.append(SoupNavigator._handleThen(then, dataItem, references, validate))
+				results.append(SoupNavigator._handleThen(then, dataItem, references, validate, logFile))
 
 			return results
 
 		results = []
 		for thenPart in then:
-			results.append(SoupNavigator._handleThen(thenPart, result, references, validate))
-
+			results.append(SoupNavigator._handleThen(thenPart, result, references, validate, logFile))
 		return results
 
 	@staticmethod

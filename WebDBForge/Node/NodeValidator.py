@@ -17,10 +17,7 @@ class NodeValidator:
 			return { 'success': False, 'error': Exception(f'no reference with key {node['from']} found in references') }
 
 		if 'access' in node:
-			if isinstance(node['access'], dict) and (not '__node__' in node['access']):
-				return { 'success': False, 'error': Exception(f'access in get node can only be a list of access points or another node which can resolve to be a list of access points') }
-
-			if not isinstance(node['access'], (list, dict)):
+			if (isinstance(node['access'], dict) and (not '__node__' in node['access'])) or (not isinstance(node['access'], (list, dict))):
 				return { 'success': False, 'error': Exception(f'access in get node can only be a list of access points or another node which can resolve to be a list of access points') }
 
 		# implement more access points check later
