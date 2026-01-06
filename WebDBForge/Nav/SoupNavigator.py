@@ -220,7 +220,7 @@ class SoupNavigator:
 		try:
 			resolvedNav = SoupNavigator.getResolved(nav, references, validate)
 
-			result = NAV_FN_DATA[nav['__nav__']]['nav'](resolvedNav, references, validate)
+			result = NAV_FN_DATA[nav['__nav__']](resolvedNav, references, validate)
 
 			if ('then' not in nav) or (nav['then'] is None) or (isinstance(nav['then'], (dict, list)) and len(nav['then']) == 0):
 				return result
@@ -245,7 +245,7 @@ class SoupNavigator:
 		if not validate:
 			return SoupNavigator._evalDirect(nav, references, validate, logFile)
 
-		validationData = NAV_FN_DATA[nav['__nav__']]['validate'](nav, references)
+		validationData = NavValidator.validate(nav, references)
 
 		if validationData['success']:
 			return SoupNavigator._evalDirect(nav, references, validate, logFile)
@@ -254,20 +254,8 @@ class SoupNavigator:
 		raise validationData['error']
 
 NAV_FN_DATA = {
-	'function': {
-		'validate': NavValidator.functionNav,
-		'nav': SoupNavigator.functionNav
-	},
-	'method': {
-		'validate': NavValidator.methodNav,
-		'nav': SoupNavigator.methodNav
-	},
-	'property': {
-		'validate': NavValidator.propertyNav,
-		'nav': SoupNavigator.propertyNav
-	},
-	'dictAccess': {
-		'validate': NavValidator.dictAccessNav,
-		'nav': SoupNavigator.dictAccessNav
-	}
+	'function': SoupNavigator.functionNav,
+	'method': SoupNavigator.methodNav,
+	'property': SoupNavigator.propertyNav,
+	'dictAccess': SoupNavigator.dictAccessNav
 }
