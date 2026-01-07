@@ -53,13 +53,24 @@ class SoupNavigator:
 		return nav['select']
 
 	@staticmethod
+	def resolveExclude(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
+		if 'exclude' not in nav:
+			return None
+
+		if isinstance(nav['exclude'], dict) and '__nav__' in nav['exclude']:
+			return SoupNavigator.eval(nav['exclude'], references, validateInternal, logFile)
+
+		return nav['exclude']
+
+	@staticmethod
 	def getResolved(nav: dict, references: dict, validateInternal: bool = True, logFile: str = None) -> Any:
 		return {
 			'data': SoupNavigator.resolveData(nav, references, validateInternal, logFile),
 			'name': SoupNavigator.resolveName(nav, references, validateInternal, logFile),
 			'args': SoupNavigator.resolveArgs(nav, references, validateInternal, logFile),
 			'kwargs': SoupNavigator.resolveKwargs(nav, references, validateInternal, logFile),
-			'select': SoupNavigator.resolveSelect(nav, references, validateInternal, logFile)
+			'select': SoupNavigator.resolveSelect(nav, references, validateInternal, logFile),
+			'exclude': SoupNavigator.resolveExclude(nav, references, validateInternal, logFile)
 		}
 
 	@staticmethod
@@ -75,7 +86,7 @@ class SoupNavigator:
 		return result
 
 	@staticmethod
-	def handleUnwrap(nav: Any, result: Any) -> Any:
+	def handleUnwrap(nav: dict, result: Any) -> Any:
 		unwrap = nav.get('unwrap', None)
 
 		if unwrap is None or unwrap.lower() not in ('shallow', 'recursive'):
@@ -86,16 +97,22 @@ class SoupNavigator:
 		return SoupNavigator.unwrap(result, unwrapRecursive)
 
 	@staticmethod
-	def getSelective(result: Any, select: None | list[int]) -> Any:
-		if select is None or not isinstance(result, list):
+	def getSelective(result: Any, select: None | list[int], exclude: None | list[int] = None) -> Any:
+		if not isinstance(result, list):
+			return result
+
+		if select is None and exclude is None:
 			return result
 
 		resultLen = len(result)
 
-		selectiveResult = []
-		for index in select:
-			if index < resultLen:
-				selectiveResult.append(result[index])
+		if select is None:
+			selectiveResult = result
+		else:
+			selectiveResult = [result[i] for i in select if i >= 0 and i < resultLen]
+
+		if exclude is not None:
+			selectiveResult = [item for i, item in enumerate(selectiveResult) if i not in exclude]
 
 		return selectiveResult
 
@@ -104,7 +121,7 @@ class SoupNavigator:
 		if not isinstance(resolvedNav['data'], list):
 			result = getattr(bs4, resolvedNav['name'])(resolvedNav['data'], *resolvedNav['args'], **resolvedNav['kwargs'])
 
-			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'], resolvedNav['exclude'])
 
 			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
 
@@ -131,7 +148,7 @@ class SoupNavigator:
 
 			result = method(*resolvedNav['args'], **resolvedNav['kwargs'])
 
-			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'], resolvedNav['exclude'])
 
 			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
 
@@ -153,7 +170,7 @@ class SoupNavigator:
 		if not isinstance(resolvedNav['data'], list):
 			result = getattr(resolvedNav['data'], resolvedNav['name'], None)
 
-			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'], resolvedNav['exclude'])
 
 			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
 
@@ -178,7 +195,7 @@ class SoupNavigator:
 			else:
 				result = None
 
-			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'])
+			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'], resolvedNav['exclude'])
 
 			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
 
@@ -199,10 +216,14 @@ class SoupNavigator:
 	def _handleThen(then: dict, result: Any, references: dict, validate: bool = True, logFile: str = None) -> Any:
 		if isinstance(then, dict):
 			if not isinstance(result, list):
+				# 1 result - 1 then
+
 				newThen = dict(then)
 				newThen['data'] = result
 
 				return SoupNavigator.eval(newThen, references, validate, logFile)
+
+			# n results - 1 then
 
 			results = []
 			for dataItem in result:
@@ -210,9 +231,25 @@ class SoupNavigator:
 
 			return results
 
+		if isinstance(result, list):
+			# n results - n thens
+
+			minLen = min(len(result), len(then))
+
+			results = []
+			for index in range(minLen):
+				results.append(
+					SoupNavigator._handleThen(then[index], result[index], references, validate, logFile)
+				)
+
+			return results
+
+		# 1 result - n thens
+
 		results = []
 		for thenPart in then:
 			results.append(SoupNavigator._handleThen(thenPart, result, references, validate, logFile))
+
 		return results
 
 	@staticmethod
@@ -231,9 +268,12 @@ class SoupNavigator:
 			if logFile is None:
 				raise e
 
-			file = open(logFile, 'a')
-			file.write(f'Error evaluating nav: {nav}\nException: {str(e)}\n\n')
-			file.close()
+			data = resolvedNav['data']
+			del resolvedNav['data']
+
+			with open(logFile, 'wt', encoding='utf-8') as file:
+				file.write(f'Error evaluating nav: {resolvedNav}\nException: {str(e)}\n\n')
+				file.write(str(data))
 
 			raise e
 
