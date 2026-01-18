@@ -19,7 +19,7 @@ class Fetcher:
 			session = requests.Session()
 
 		responses = {}
-		
+
 		for key, url in manifest.items():
 			time.sleep(stall)
 			responses[key] = Fetcher.fetchText(url, session)

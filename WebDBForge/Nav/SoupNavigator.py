@@ -70,7 +70,8 @@ class SoupNavigator:
 			'args': SoupNavigator.resolveArgs(nav, references, validateInternal, logFile),
 			'kwargs': SoupNavigator.resolveKwargs(nav, references, validateInternal, logFile),
 			'select': SoupNavigator.resolveSelect(nav, references, validateInternal, logFile),
-			'exclude': SoupNavigator.resolveExclude(nav, references, validateInternal, logFile)
+			'exclude': SoupNavigator.resolveExclude(nav, references, validateInternal, logFile),
+			'unwrap': nav.get('unwrap', None)
 		}
 
 	@staticmethod
@@ -80,19 +81,19 @@ class SoupNavigator:
 				return result[0]
 			return result
 
-		while isinstance(result, list) and len(result) == 1:
-			result = result[0]
+		if isinstance(result, list) and len(result) == 1:
+			return SoupNavigator.unwrap(result[0], True)
 
 		return result
 
 	@staticmethod
 	def handleUnwrap(nav: dict, result: Any) -> Any:
-		unwrap = nav.get('unwrap', None)
+		unwrap = nav['unwrap']
 
-		if unwrap is None or unwrap.lower() not in ('shallow', 'recursive'):
+		if unwrap is None or (unwrap.lower() not in ('shallow', 'recursive')):
 			return result
 
-		unwrapRecursive = unwrap.lower() == 'recursive'
+		unwrapRecursive = (unwrap.lower() == 'recursive')
 
 		return SoupNavigator.unwrap(result, unwrapRecursive)
 
@@ -265,15 +266,13 @@ class SoupNavigator:
 			return SoupNavigator._handleThen(nav['then'], result, references, validate)
 
 		except Exception as e:
-			if logFile is None:
-				raise e
+			if logFile is not None:
+				data = resolvedNav['data']
+				del resolvedNav['data']
 
-			data = resolvedNav['data']
-			del resolvedNav['data']
-
-			with open(logFile, 'wt', encoding='utf-8') as file:
-				file.write(f'Error evaluating nav: {resolvedNav}\nException: {str(e)}\n\n')
-				file.write(str(data))
+				with open(logFile, 'wt', encoding='utf-8') as file:
+					file.write(f'Error evaluating nav: {resolvedNav}\nException: {str(e)}\n\n')
+					file.write(str(data))
 
 			raise e
 
