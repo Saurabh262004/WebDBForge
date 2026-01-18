@@ -6,8 +6,9 @@
 		"args": "list[Any] | Nav -> positional arguments for function and method #optional",
 		"kwargs": "dict[str, Any] | Nav -> keyword arguments for function and method #optional",
 		"select": "list[int] | Nav -> if result of the nav is multiple elements, returns only the elements with given index #optional",
-		"exclude": "list[int] | Nav -> same as select except this removes the elements at given indices",
-		"unwrap": "Literal['shallow', 'recursive'] -> unwraps the result if it's length is 1 #optional"
+		"exclude": "list[int] | Nav -> same as select except this removes the elements at given indices #optional",
+		"unwrap": "Literal['shallow', 'recursive'] -> unwraps the result if it's length is 1 #optional",
+		"then": "Nav | nd-Nav array -> results from the current nav are passed to then"
 	},
 	"function": ["__nav__", "data", "name", "args", "kwargs", "select", "unwrap"],
 	"method": ["__nav__", "data", "name", "args", "kwargs", "select", "unwrap"],
