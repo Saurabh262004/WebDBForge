@@ -110,7 +110,7 @@ class SoupNavigator:
 		if select is None:
 			selectiveResult = result
 		else:
-			selectiveResult = [result[i] for i in select if i >= 0 and i < resultLen]
+			selectiveResult = [result[i] for i in select if abs(i) >= 0 and abs(i) < resultLen]
 
 		if exclude is not None:
 			selectiveResult = [item for i, item in enumerate(selectiveResult) if i not in exclude]
@@ -190,6 +190,9 @@ class SoupNavigator:
 
 	@staticmethod
 	def dictAccessNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
+		if resolvedNav['data'] is None:
+			return None
+
 		if not isinstance(resolvedNav['data'], list):
 			if resolvedNav['name'] in resolvedNav['data']:
 				result = resolvedNav['data'][resolvedNav['name']]
