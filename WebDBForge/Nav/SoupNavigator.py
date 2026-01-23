@@ -281,19 +281,24 @@ class SoupNavigator:
 
 	@staticmethod
 	def eval(nav: dict, references: dict, validate: bool = True, logFile: str =  None) -> Any:
-		if nav['__nav__'] not in NAV_FN_DATA:
-			raise Exception(f'Invalid nav type: {nav["__nav__"]}')
+		if isinstance(nav, dict) and '__nav__' in nav:
+			if nav['__nav__'] not in NAV_FN_DATA:
+				raise Exception(f'Invalid nav type: {nav["__nav__"]}')
 
-		if not validate:
-			return SoupNavigator._evalDirect(nav, references, validate, logFile)
+			if not validate:
+				return SoupNavigator._evalDirect(nav, references, validate, logFile)
 
-		validationData = NavValidator.validate(nav, references)
+			validationData = NavValidator.validate(nav, references)
 
-		if validationData['success']:
-			return SoupNavigator._evalDirect(nav, references, validate, logFile)
+			if validationData['success']:
+				return SoupNavigator._evalDirect(nav, references, validate, logFile)
 
-		print(f'Error evaluating nav: {nav}\n')
-		raise validationData['error']
+			print(f'Error evaluating nav: {nav}\n')
+			raise validationData['error']
+		elif isinstance(nav, list):
+			return [SoupNavigator.eval(item, references, validate, logFile) for item in nav]
+
+		raise Exception(f'Invalid nav structure: {nav}')
 
 NAV_FN_DATA = {
 	'function': SoupNavigator.functionNav,
