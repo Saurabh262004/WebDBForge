@@ -95,6 +95,7 @@ class NodeEvaluator:
 	def zipNode(node: dict, references: dict = None, validateInternal: bool = True) -> list[dict, list]:
 		if '__node__' in node['sources']:
 			sources = NodeEvaluator.eval(node['sources'], references, validateInternal)
+
 		else:
 			sources = {}
 
@@ -103,36 +104,35 @@ class NodeEvaluator:
 
 		if isinstance(node['build'], dict) and '__node__' in node['build']:
 			build = NodeEvaluator.eval(node['build'], references, validateInternal)
+
 		elif isinstance(node['build'], list):
 			build = [
 				NodeEvaluator.eval(buildNode, references, validateInternal)
 				for buildNode in node['build']
 			]
+
 		else:
 			build = node['build']
 
-		minSourceLen = min([len(source) for source in sources.values()])
+		minSourceLen = min(len(source) for source in sources.values())
 
 		result = []
 
 		if isinstance(build, dict):
-			for i in range(minSourceLen):
-				buildObj = {}
-
-				for key, sourceReference in build.items():
-					buildObj[key] = sources[sourceReference][i]
-
-				result.append(buildObj)
+			result = [
+				{
+					key: sources[src][i]
+					for key, src in build.items()
+				}
+				for i in range(minSourceLen)
+			]
 
 			return result
 
-		for i in range(minSourceLen):
-			result.append(
-				[
-					sources[sourceReference][i]
-					for sourceReference in build
-				]
-			)
+		result = [
+			[sources[src][i] for src in build]
+			for i in range(minSourceLen)
+		]
 
 		return result
 
