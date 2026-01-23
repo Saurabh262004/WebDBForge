@@ -30,6 +30,7 @@ class SoupNavigator:
 
 		if isinstance(nav['args'], dict) and '__nav__' in nav['args']:
 			return SoupNavigator.eval(nav['args'], references, validateInternal, logFile)
+
 		return nav['args']
 
 	@staticmethod
@@ -294,7 +295,9 @@ class SoupNavigator:
 				return SoupNavigator._evalDirect(nav, references, validate, logFile)
 
 			print(f'Error evaluating nav: {nav}\n')
+
 			raise validationData['error']
+
 		elif isinstance(nav, list):
 			return [SoupNavigator.eval(item, references, validate, logFile) for item in nav]
 
