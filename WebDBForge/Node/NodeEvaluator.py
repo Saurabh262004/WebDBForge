@@ -130,7 +130,7 @@ class NodeEvaluator:
 		if isinstance(sources, dict):
 			result = {}
 			for key, source in sources.items():
-				fun = copy.deepcopy(node['fun'])
+				fun = node['fun']
 				fun['__source__'] = source
 
 				result[key] = NodeEvaluator.eval(fun, references, validateInternal)
@@ -139,7 +139,7 @@ class NodeEvaluator:
 
 		result = []
 		for source in sources:
-			fun = copy.deepcopy(node['fun'])
+			fun = node['fun']
 			fun['__source__'] = source
 
 			result.append(NodeEvaluator.eval(fun, references, validateInternal))

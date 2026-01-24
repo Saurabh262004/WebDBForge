@@ -52,7 +52,10 @@ def MakeDB(fetchManifest: dict[str, str], navsManifest: dict[str, str], nodeSRC:
 	metadata['lastUpdate'] = startTime
 	metadata['creationTime'] = endTime - startTime
 
-	db['__metadata__'] = metadata
+	if isinstance(db, dict):
+		db['__metadata__'] = metadata
+	elif isinstance(db, list):
+		db.append({'__metadata__': metadata})
 
 	if out is not None:
 		if not os.path.exists(out):
