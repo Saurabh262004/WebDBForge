@@ -9,7 +9,23 @@ class NodeEvaluator:
 
 	@staticmethod
 	def getNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
-		result = references[node['from']]
+		if 'sources' in node:
+			sources = node.get('sources', None)
+
+			if isinstance(sources, dict) and '__node__' in sources:
+				sources = NodeEvaluator.eval(sources, references, validateInternal)
+
+			if isinstance(node['from'], str):
+				if node['from'] not in sources:
+					raise Exception(f'no source with key {node['from']} found in sources')
+
+			elif len(sources) <= node['from']:
+				raise Exception(f'no source at index {node['from']} found in sources')
+
+			result = sources[node['from']]
+
+		else:
+			result = references[node['from']]
 
 		if 'access' not in node:
 			if 'unwrapIfSingle' in node and node['unwrapIfSingle'] and isinstance(result, (list, tuple)) and len(result) == 1:
@@ -93,7 +109,7 @@ class NodeEvaluator:
 
 	@staticmethod
 	def funNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
-		source = node.get('__source_', None)
+		source = node.get('__source__', None)
 
 		if '__node__' in node:
 			node = { key: (source if value == '__source__' else value) for key, value in node.items() }
@@ -206,11 +222,7 @@ class NodeEvaluator:
 
 	@staticmethod
 	def _evalDirect(node: dict, references: dict = None, validate: bool = True) -> Any:
-		try:
-			return NODE_FN_DATA[node['__node__']](node, references, validate)
-		except Exception as e:
-			print(f'Error evaluating node: {node}\n')
-			raise e
+		return NODE_FN_DATA[node['__node__']](node, references, validate)
 
 	@staticmethod
 	def eval(node: dict, references: dict = None, validate: bool = True) -> Any:

@@ -10,11 +10,25 @@ class NodeValidator:
 
 	@staticmethod
 	def getNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
+		nFrom = node.get('from', None)
+
 		if 'from' not in node:
 			return { 'success': False, 'error': Exception('missing \'from\' in a get node') }
 
-		if node['from'] not in references:
-			return { 'success': False, 'error': Exception(f'no reference with key {node['from']} found in references') }
+		if isinstance(nFrom, str):
+			if 'sources' in node:
+				if not isinstance(node['sources'], dict):
+					return { 'success': False, 'error': Exception('from in get is str, sources must be a dict or another node') }
+
+				if (nFrom not in node['sources']):
+					return { 'success': False, 'error': Exception(f'no source with key {nFrom} found in sources') }
+
+			else:
+				if not isinstance(references, dict):
+					return { 'success': False, 'error': Exception('from in get is str, references must be a dict') }
+
+				if (nFrom not in references):
+					return { 'success': False, 'error': Exception(f'no reference with key {nFrom} found in references') }
 
 		if 'access' in node:
 			if (isinstance(node['access'], dict) and (not '__node__' in node['access'])) or (not isinstance(node['access'], (list, dict))):
@@ -65,8 +79,8 @@ class NodeValidator:
 			if not '__type__' in node:
 				return { 'success': False, 'error': Exception('missing \'__type__\' in a fun node') }
 
-			if nodeType not in NODE_METHODS:
-				return { 'success': False, 'error': Exception(f'no method with name {nodeType} found') }
+			if nodeType not in NodeValidatorMethods:
+				return { 'success': False, 'error': Exception(f'unrecognized node type {nodeType}') }
 
 			return { 'success': True, 'error': None }
 
