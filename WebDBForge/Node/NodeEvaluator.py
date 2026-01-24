@@ -1,3 +1,4 @@
+import copy
 from WebDBForge.Node.NodeValidator import NodeValidator
 from WebDBForge.Node.NodeCreate import NODE_METHODS
 from typing import Any
@@ -92,6 +93,60 @@ class NodeEvaluator:
 		return result
 
 	@staticmethod
+	def funNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
+		source = node.get('__source_', None)
+
+		if '__node__' in node:
+			node = { key: (source if value == '__source__' else value) for key, value in node.items() }
+			node['__node__'] = node['__type__']
+
+			return NodeEvaluator.eval(node, references, validateInternal)
+
+		fn = references[node['fun']]
+
+		args = node.get('args', [])
+
+		if isinstance(node['args'], dict) and '__node__' in node['args']:
+			args = NodeEvaluator.eval(node['args'], references, validateInternal)
+
+		args = [source if arg == '__source__' else arg for arg in args]
+
+		kwargs = node.get('kwargs', {})
+
+		if isinstance(node['kwargs'], dict) and '__node__' in node['kwargs']:
+			kwargs = NodeEvaluator.eval(node['kwargs'], references, validateInternal)
+
+		kwargs = { key: (source if value == '__source__' else value) for key, value in kwargs.items() }
+
+		return fn(*args, **kwargs)
+
+	@staticmethod
+	def mapNode(node: dict, references: dict = None, validateInternal: bool = True) -> list:
+		if isinstance(node['sources'], dict) and '__node__' in node['sources']:
+			sources = NodeEvaluator.eval(node['sources'], references, validateInternal)
+		else:
+			sources = node['sources']
+
+		if isinstance(sources, dict):
+			result = {}
+			for key, source in sources.items():
+				fun = copy.deepcopy(node['fun'])
+				fun['__source__'] = source
+
+				result[key] = NodeEvaluator.eval(fun, references, validateInternal)
+
+			return result
+
+		result = []
+		for source in sources:
+			fun = copy.deepcopy(node['fun'])
+			fun['__source__'] = source
+
+			result.append(NodeEvaluator.eval(fun, references, validateInternal))
+
+		return result
+
+	@staticmethod
 	def zipNode(node: dict, references: dict = None, validateInternal: bool = True) -> list[dict, list]:
 		if '__node__' in node['sources']:
 			sources = NodeEvaluator.eval(node['sources'], references, validateInternal)
@@ -138,20 +193,22 @@ class NodeEvaluator:
 
 	@staticmethod
 	def callNode(node: dict, references: dict = None, validateInternal: bool = True) -> Any:
-		if isinstance(node['args'], dict) and '__node__' in node['args']:
+		if isinstance(node.get('args', None), dict) and '__node__' in node['args']:
 			args = NodeEvaluator.eval(node['args'], references, validateInternal)
 		else:
-			args = node['args']
+			args = node.get('args', [])
 
-		if node['argsType'] == 'kwargs':
-			return references[node['func']](**args)
+		if isinstance(node.get('kwargs', None), dict) and '__node__' in node['kwargs']:
+			kwargs = NodeEvaluator.eval(node['kwargs'], references, validateInternal)
+		else:
+			kwargs = node.get('kwargs', {})
 
-		return references[node['func']](*args)
+		return references[node['func']](*args, **kwargs)
 
 	@staticmethod
 	def _evalDirect(node: dict, references: dict = None, validate: bool = True) -> Any:
 		try:
-			return NODE_FN_DATA[node['__node__']]['eval'](node, references, validate)
+			return NODE_FN_DATA[node['__node__']](node, references, validate)
 		except Exception as e:
 			print(f'Error evaluating node: {node}\n')
 			raise e
@@ -164,7 +221,7 @@ class NodeEvaluator:
 		if not validate:
 			return NodeEvaluator._evalDirect(node, references, validate)
 
-		validationData = NODE_FN_DATA[node['__node__']]['validate'](node, references)
+		validationData = NodeValidator.validate(node, references)
 
 		if not validationData['success']:
 			print(f'Error evaluating node: {node}\n')
@@ -173,32 +230,13 @@ class NodeEvaluator:
 		return NodeEvaluator._evalDirect(node, references, validate)
 
 NODE_FN_DATA = {
-	'const': {
-		'validate': NodeValidator.constNode,
-		'eval': NodeEvaluator.constNode
-	},
-	'get': {
-		'validate': NodeValidator.getNode,
-		'eval': NodeEvaluator.getNode
-	},
-	'create': {
-		'validate': NodeValidator.createNode,
-		'eval': NodeEvaluator.createNode
-	},
-	'list': {
-		'validate': NodeValidator.listNode,
-		'eval': NodeEvaluator.listNode
-	},
-	'dict': {
-		'validate': NodeValidator.dictNode,
-		'eval': NodeEvaluator.dictNode
-	},
-	'zip': {
-		'validate': NodeValidator.zipNode,
-		'eval': NodeEvaluator.zipNode
-	},
-	'call': {
-		'validate': NodeValidator.callNode,
-		'eval': NodeEvaluator.callNode
-	}
+	'const': NodeEvaluator.constNode,
+	'get': NodeEvaluator.getNode,
+	'create': NodeEvaluator.createNode,
+	'list': NodeEvaluator.listNode,
+	'dict': NodeEvaluator.dictNode,
+	'fun': NodeEvaluator.funNode,
+	'map': NodeEvaluator.mapNode,
+	'zip': NodeEvaluator.zipNode,
+	'call': NodeEvaluator.callNode
 }

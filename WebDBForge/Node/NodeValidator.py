@@ -55,6 +55,48 @@ class NodeValidator:
 		return { 'success': True, 'error': None }
 
 	@staticmethod
+	def funNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
+		if not isinstance(node, dict):
+			return { 'success': False, 'error': Exception('a fun node must be a dict') }
+		
+		if '__node__' in node:
+			nodeType = node['__node__']
+
+			if not '__type__' in node:
+				return { 'success': False, 'error': Exception('missing \'__type__\' in a fun node') }
+
+			if nodeType not in NODE_METHODS:
+				return { 'success': False, 'error': Exception(f'no method with name {nodeType} found') }
+
+			return { 'success': True, 'error': None }
+
+		keys = node.keys()
+		for fnKey in ('fun', 'args', 'kwargs'):
+			if fnKey not in keys:
+				return { 'success': False, 'error': Exception(f'missing \'{fnKey}\' in a fun node') }
+
+		if node['fun'] not in references:
+			return { 'success': False, 'error': Exception(f'no function with key {node['fun']} found in references') }
+
+		return { 'success': True, 'error': None }
+
+	@staticmethod
+	def mapNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
+		if 'sources' not in node:
+			return { 'success': False, 'error': Exception('missing \'sources\' in a map node') }
+
+		if not isinstance(node['sources'], (list, dict)):
+			return { 'success': False, 'error': Exception('sources in a map node must be a list, dict or another node') }
+
+		if 'fun' not in node:
+			return { 'success': False, 'error': Exception('missing \'fun\' in a map node') }
+
+		if not isinstance(node['fun'], dict) or '__node__' not in node['fun']:
+			return { 'success': False, 'error': Exception('fun in a map node must be another node') }
+
+		return { 'success': True, 'error': None }
+
+	@staticmethod
 	def zipNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
 		if 'sources' not in node:
 			return { 'success': False, 'error': Exception('missing \'sources\' in a zip node') }
@@ -79,3 +121,30 @@ class NodeValidator:
 			return { 'success': False, 'error': Exception(f'no function with key {node['func']} found in references') }
 
 		return { 'success': True, 'error': None }
+
+	@staticmethod
+	def validate(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
+		if not isinstance(node, dict):
+			return { 'success': False, 'error': Exception('a node must be a dict') }
+
+		if '__node__' not in node:
+			return { 'success': False, 'error': Exception('a node must at least contain the \'__node__\' key') }
+
+		nodeType = node['__node__']
+
+		if nodeType not in NodeValidatorMethods:
+			return { 'success': False, 'error': Exception(f'no method with name {nodeType} found') }
+
+		return NodeValidatorMethods[nodeType](node, references)
+
+NodeValidatorMethods = {
+	'const': NodeValidator.constNode,
+	'get': NodeValidator.getNode,
+	'create': NodeValidator.createNode,
+	'list': NodeValidator.listNode,
+	'dict': NodeValidator.dictNode,
+	'map': NodeValidator.mapNode,
+	'fun': NodeValidator.funNode,
+	'zip': NodeValidator.zipNode,
+	'call': NodeValidator.callNode
+}
