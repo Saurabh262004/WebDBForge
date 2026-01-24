@@ -1,4 +1,3 @@
-import copy
 from WebDBForge.Node.NodeValidator import NodeValidator
 from WebDBForge.Node.NodeCreate import NODE_METHODS
 from typing import Any
