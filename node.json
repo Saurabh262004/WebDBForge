@@ -1,0 +1,67 @@
+[
+	{
+		"setup": "setup the environment before evaluating structure",
+		"struct": "database structure to return at the end of evaluation"
+	},
+	{
+		"const": "store unchanged data directly in the node",
+		"ext": "get from external reference",
+		"get": "get a variable from the current enviornment",
+		"set": "set a variable in the current environment",
+		"unwrap": "unwraps given data",
+		"merge": "merge data from multiple sources in a single list",
+		"repeat": "repeatedly evaluate a provided node for a cirtan ammount of time",
+		"dict": "represents a python dict",
+		"zip": "combines data in parallel to create lists or dicts with the provided build",
+		"call": "call a provided callable object"
+	},
+	{
+		"const": {
+			"__node__": "Literal['const']",
+			"val": "Any"
+		},
+		"ext": {
+			"__node__": "Literal['ext']",
+			"val": "str | Node"
+		},
+		"get": {
+			"__node__": "Literal['get']",
+			"val": "str | Node"
+		},
+		"set": {
+			"__node__": "Literal['set']",
+			"val": "Any",
+			"name": "str"
+		},
+		"unwrap": {
+			"__node__": "Literal['unwrap']",
+			"val": "list[Any, Node] | Node",
+			"mode": "Literal['flat', 'recursive']"
+		},
+		"merge": {
+			"__node__": "Literal['merge']",
+			"val": "list[Any, Node] | Node"
+		},
+		"repeat": {
+			"__node__": "Literal['repeat']",
+			"val": "Node",
+			"itr": "int | Node"
+		},
+		"dict": {
+			"__node__": "Literal['dict']",
+			"keys": "list[Any, Node] | Node",
+			"values": "list[Any, Node] | Node"
+		},
+		"zip": {
+			"__node__": "Literal['zip']",
+			"sources": "dict[str, Node] | Node",
+			"build": "dict[str, str] | list[str] | Node"
+		},
+		"call": {
+			"__node__": "Literal['call']",
+			"val": "callable | Node",
+			"args": "list[Any, Node] | Node",
+			"kwargs": "dict[str, Any | Node] | Node"
+		}
+	}
+]
