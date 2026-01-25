@@ -6,7 +6,7 @@ from WebDBForge.Scrapers import Fetcher
 from WebDBForge.Nav import SoupNavigator
 from WebDBForge.Node import NodeEvaluator
 
-def MakeDB(fetchManifest: dict[str, str], navsManifest: dict[str, str], nodeSRC: str = None, out: str = None, logSRC: str = None) -> dict | None:
+def MakeDB(fetchManifest: dict[str, str], navsManifest: dict[str, str], nodeSRC: str = None, extraRef: dict = None, out: str = None, logSRC: str = None) -> dict | None:
 	startTime = int(time.time() * 1000)
 
 	for src in navsManifest.values():
@@ -33,6 +33,9 @@ def MakeDB(fetchManifest: dict[str, str], navsManifest: dict[str, str], nodeSRC:
 
 	for key, nav in navScripts.items():
 		navData[key] = SoupNavigator.eval(nav, fetchData, logFile=logSRC)
+
+	if extraRef is not None:
+		navData.update(extraRef)
 
 	if nodeSRC is not None and os.path.exists(nodeSRC):
 		nodeFile = open(nodeSRC, 'rb')
