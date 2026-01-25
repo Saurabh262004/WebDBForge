@@ -16,10 +16,6 @@ class NavValidator:
 		return {'success': True}
 
 	@staticmethod
-	def functionNav(nav: dict, references: dict) -> dict:
-		return {'success': True}
-
-	@staticmethod
 	def methodNav(nav: dict, references: dict) -> dict:
 		return {'success': True}
 
@@ -41,7 +37,6 @@ class NavValidator:
 		return NAV_FN_DATA[nav['__nav__']](nav, references)
 
 NAV_FN_DATA = {
-	'function': NavValidator.functionNav,
 	'method': NavValidator.methodNav,
 	'property': NavValidator.propertyNav,
 	'dictAccess': NavValidator.dictAccessNav

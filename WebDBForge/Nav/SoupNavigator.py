@@ -1,5 +1,4 @@
 from typing import Any
-import bs4
 from WebDBForge.Nav.NavValidator import NavValidator
 
 class SoupNavigator:
@@ -117,28 +116,6 @@ class SoupNavigator:
 			selectiveResult = [item for i, item in enumerate(selectiveResult) if i not in exclude]
 
 		return selectiveResult
-
-	@staticmethod
-	def functionNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
-		if not isinstance(resolvedNav['data'], list):
-			result = getattr(bs4, resolvedNav['name'])(resolvedNav['data'], *resolvedNav['args'], **resolvedNav['kwargs'])
-
-			selectiveResult = SoupNavigator.getSelective(result, resolvedNav['select'], resolvedNav['exclude'])
-
-			unwrappedResult = SoupNavigator.handleUnwrap(resolvedNav, selectiveResult)
-
-			return unwrappedResult
-
-		results = []
-		for dataItem in resolvedNav['data']:
-			newNav = dict(resolvedNav)
-			newNav['data'] = dataItem
-
-			result = SoupNavigator.functionNav(newNav, references, validateInternal)
-
-			results.append(result)
-
-		return results
 
 	@staticmethod
 	def methodNav(resolvedNav: dict, references: dict, validateInternal: bool = True) -> Any:
@@ -304,7 +281,6 @@ class SoupNavigator:
 		raise Exception(f'Invalid nav structure: {nav}')
 
 NAV_FN_DATA = {
-	'function': SoupNavigator.functionNav,
 	'method': SoupNavigator.methodNav,
 	'property': SoupNavigator.propertyNav,
 	'dictAccess': SoupNavigator.dictAccessNav
