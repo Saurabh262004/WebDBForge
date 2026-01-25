@@ -129,7 +129,7 @@ class NodeValidator:
 	@staticmethod
 	def callNode(node: dict, references: dict = None) -> dict[str, bool | Exception | None]:
 		if 'func' not in node:
-			return { 'success': False, 'error': Exception('missing \'sources\' in a zip node') }
+			return { 'success': False, 'error': Exception('missing \'func\' in a call node') }
 
 		if node['func'] not in references:
 			return { 'success': False, 'error': Exception(f'no function with key {node['func']} found in references') }
