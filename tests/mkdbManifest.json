@@ -1,0 +1,13 @@
+{
+	"fetchManifest": {
+		"genshinCharacters": "https://genshin-impact.fandom.com/wiki/Character/List",
+		"genshinWeapons": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Weapon_Type"
+	},
+	"navsManifest": {
+		"genshinCharacters": "tests/nav/genshinCharacters.json",
+		"genshinWeapons": "tests/nav/genshinWeapons.json"
+	},
+	"nodeSRC": "tests/dbNode.json",
+	"out": "tests/out.json",
+	"logSRC": "tests/log"
+}

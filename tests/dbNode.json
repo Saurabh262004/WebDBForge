@@ -1,0 +1,151 @@
+{
+	"__node__": "dict",
+	"keys": [ "GenshinImpact" ],
+	"values": [
+		{
+			"__node__": "dict",
+			"keys": [ "Items" ],
+			"values": [
+				{
+					"__node__": "dict",
+					"keys": [ "Characters" ],
+					"values": [
+						{
+							"__node__": "dict",
+							"keys": {
+								"__node__": "map",
+								"sources": {
+									"__node__": "get",
+									"from": "genshinCharacters",
+									"access": [ 0 ]
+								},
+								"fun": {
+									"__node__": "fun",
+									"__type__": "get",
+									"sources": "__source__",
+									"from": 1
+								}
+							},
+							"values": {
+								"__node__": "zip",
+								"sources": {
+									"__node__": "dict",
+									"keys": [ "Rarity", "Element", "WeaponClass", "Region", "Model", "ReleaseDate", "ReleaseVersion" ],
+									"values": [
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 2
+											}
+										},
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 3
+											}
+										},
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 4
+											}
+										},
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 5
+											}
+										},
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 6
+											}
+										},
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 7
+											}
+										},
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 8
+											}
+										}
+									]
+								},
+								"build": {
+									"Rarity": "Rarity",
+									"Element": "Element",
+									"WeaponClass": "WeaponClass",
+									"Region": "Region",
+									"Model": "Model",
+									"ReleaseDate": "ReleaseDate",
+									"ReleaseVersion": "ReleaseVersion"
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

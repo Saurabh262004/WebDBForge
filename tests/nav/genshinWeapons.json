@@ -1,0 +1,75 @@
+	{
+		"__nav__": "method",
+		"data": { "ref": "genshinWeapons" },
+		"name": "find_all",
+		"args": ["table"],
+		"then": {
+			"__nav__": "method",
+			"name": "find",
+			"args": ["tbody"],
+			"then": {
+				"__nav__": "method",
+				"name": "find_all",
+				"args": ["tr"],
+				"exclude": [0],
+				"then": {
+					"__nav__": "method",
+					"name": "find_all",
+					"args": ["td"],
+					"select": [0, 1, 2, 3, 4, 5],
+					"unwrap": "recursive",
+					"then": [
+						{
+							"__nav__": "method",
+							"name": "find",
+							"args": ["img"],
+							"then": {
+								"__nav__": "property",
+								"name": "attrs",
+								"then": {
+									"__nav__": "dictAccess",
+									"name": "data-src"
+								}
+							}
+						},
+						{
+						"__nav__": "method",
+						"name": "find",
+						"args": ["a"],
+						"then": {
+							"__nav__": "method",
+							"name": "get_text"
+						}
+					},
+					{
+						"__nav__": "method",
+						"name": "find_all",
+						"args": ["span"],
+						"select": [1],
+						"unwrap": "recursive",
+						"then": {
+							"__nav__": "property",
+							"name": "attrs",
+							"then": {
+								"__nav__": "dictAccess",
+								"name": "title"
+							}
+						}
+					},
+					{
+						"__nav__": "method",
+						"name": "get_text"
+					},
+					{
+						"__nav__": "method",
+						"name": "get_text"
+					},
+					{
+						"__nav__": "method",
+						"name": "get_text"
+					}
+				]
+			}
+		}
+	}
+}
