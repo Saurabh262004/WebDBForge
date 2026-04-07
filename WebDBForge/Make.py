@@ -2,8 +2,7 @@ import os
 import time
 import orjson
 import bs4
-from WebDBForge.Scrapers import Fetcher
-from WebDBForge.Scrapers import ImageCollector
+from WebDBForge.Scrapers import Fetcher, ImageCollector
 from WebDBForge.Nav import SoupNavigator
 from WebDBForge.Node import NodeEvaluator
 
