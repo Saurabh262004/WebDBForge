@@ -110,7 +110,7 @@ class SoupNavigator:
 		if select is None:
 			selectiveResult = result
 		else:
-			selectiveResult = [result[i] for i in select if abs(i) >= 0 and abs(i) < resultLen]
+			selectiveResult = [result[i] for i in select if -resultLen <= i < resultLen]
 
 		if exclude is not None:
 			selectiveResult = [item for i, item in enumerate(selectiveResult) if i not in exclude]
