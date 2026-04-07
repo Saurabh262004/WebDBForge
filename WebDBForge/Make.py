@@ -15,7 +15,7 @@ def MakeDB(
 		out: str = None,
 		logSRC: str = None,
 		stall: float = 2.0
-	) -> dict | None:
+	) -> dict:
 
 	startTime = int(time.time() * 1000)
 
@@ -116,8 +116,10 @@ def MakeDB(
 	# return / write database
 
 	if out is not None:
-		if not os.path.exists(out):
-			pass
+		path = os.path.dirname(out)
+
+		if not os.path.exists(path):
+			os.makedirs(path)
 
 		with open(out, 'wb') as f:
 			f.write(orjson.dumps(db, option=orjson.OPT_INDENT_2))
