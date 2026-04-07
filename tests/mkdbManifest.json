@@ -8,6 +8,13 @@
 		"genshinWeapons": "tests/nav/genshinWeapons.json"
 	},
 	"nodeSRC": "tests/dbNode.json",
+	"imageManifest": {
+		"__type__": "direct",
+		"__dir__": "tests/img",
+		"__manifest__": {
+			"Hydro": "https://static.wikia.nocookie.net/gensin-impact/images/3/35/Element_Hydro.png"
+		}
+	},
 	"out": "tests/out.json",
 	"logSRC": "tests/log"
 }

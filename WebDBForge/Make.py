@@ -3,10 +3,21 @@ import time
 import orjson
 import bs4
 from WebDBForge.Scrapers import Fetcher
+from WebDBForge.Scrapers import ImageCollector
 from WebDBForge.Nav import SoupNavigator
 from WebDBForge.Node import NodeEvaluator
 
-def MakeDB(fetchManifest: dict[str, str], navsManifest: dict[str, str], nodeSRC: str = None, extraRef: dict = None, out: str = None, logSRC: str = None) -> dict | None:
+def MakeDB(
+		fetchManifest: dict[str, str],
+		navsManifest: dict[str, str],
+		nodeSRC: str = None,
+		extraRef: dict = None,
+		imageManifest: dict[str, str] = None,
+		out: str = None,
+		logSRC: str = None,
+		stall: float = 2.0
+	) -> dict | None:
+
 	startTime = int(time.time() * 1000)
 
 	# verify nav files
@@ -29,9 +40,9 @@ def MakeDB(fetchManifest: dict[str, str], navsManifest: dict[str, str], nodeSRC:
 
 	# fetch plain html pages
 
-	session = Fetcher._get_session() # can be used for image collection later
+	session = Fetcher._get_session()
 
-	fetchData = Fetcher.fetchTextBatch(fetchManifest, session)
+	fetchData = Fetcher.fetchTextBatch(fetchManifest, session, stall)
 
 	# process plain html pages
 
@@ -62,7 +73,34 @@ def MakeDB(fetchManifest: dict[str, str], navsManifest: dict[str, str], nodeSRC:
 	else:
 		db = navData
 
-	# finalize database
+	# image collection process
+
+	if imageManifest is not None:
+		# get proper image manifest
+
+		imgDir = imageManifest.get('__dir__', None)
+
+		if imgDir is None:
+			raise Exception('image manifest must contain __dir__ key')
+
+		manifestType = imageManifest.get('__type__', None)
+
+		if manifestType is None:
+			raise Exception('image manifest must contain __type__ key')
+
+		if manifestType == 'ref':
+			imageManifest = db.get(imageManifest['__ref__'], None)
+		elif manifestType == 'direct':
+			imageManifest = imageManifest.get('__manifest__', None)
+
+		if imageManifest is None:
+			raise Exception('no valid image manifest found')
+
+		# collect images
+
+		ImageCollector.collectBatch(imageManifest, imgDir, session, stall)
+
+	# finalize database / add metadata
 
 	metadata = {}
 
