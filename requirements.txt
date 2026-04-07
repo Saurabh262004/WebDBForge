@@ -1,4 +1,4 @@
-requests
+cloudscraper
 bs4
 orjson
 tqdm
