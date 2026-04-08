@@ -72,7 +72,6 @@ def MakeDB(
 		The constructed database object.
 	'''
 
-
 	with tqdm(total=100, desc='Making DB') as pbar:
 		startTime = int(time.time() * 1000)
 
