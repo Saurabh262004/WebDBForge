@@ -42,7 +42,7 @@ def MakeDB(
 		Configuration for the image collection process. Must include:
 			- "__dir__": Target directory for images.
 			- "__type__": Either "ref" or "direct".
-		
+
 		If "__type__" == "ref":
 			- Must include "__ref__": Key pointing to a location in the final
 			  database that contains the actual manifest.
