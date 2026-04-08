@@ -5,6 +5,7 @@ import bs4
 from WebDBForge.Scrapers import Fetcher, ImageCollector
 from WebDBForge.Nav import SoupNavigator
 from WebDBForge.Node import NodeEvaluator
+from tqdm import tqdm
 
 def MakeDB(
 		fetchManifest: dict[str, str],
@@ -13,115 +14,202 @@ def MakeDB(
 		extraRef: dict = None,
 		imageManifest: dict[str, str] = None,
 		out: str = None,
+		rawOut: str = None,
 		logSRC: str = None,
 		stall: float = 2.0
 	) -> dict:
+	'''
+	Build a structured database by fetching HTML sources, processing them
+	through navigation scripts, and evaluating nodes.
 
-	startTime = int(time.time() * 1000)
+	Parameters
+	----------
+	fetchManifest : dict[str, str]
+		Mapping of keys to URLs for plain HTML pages to fetch.
 
-	# verify nav files
+	navsManifest : dict[str, str]
+		Mapping of keys to file paths of navigation scripts used to process
+		the fetched HTML content.
 
-	for src in navsManifest.values():
-		if not os.path.exists(src):
-			raise FileNotFoundError(src)
+	nodeSRC : str | None, optional
+		File path to a node script that defines the structure of the final
+		database. If None, node evaluation may be skipped or handled elsewhere.
 
-	# load nav files
+	extraRef : dict | None, optional
+		Additional reference data used during node evaluation.
 
-	navScripts = {}
+	imageManifest : dict | None, optional
+		Configuration for the image collection process. Must include:
+			- "__dir__": Target directory for images.
+			- "__type__": Either "ref" or "direct".
+		
+		If "__type__" == "ref":
+			- Must include "__ref__": Key pointing to a location in the final
+			  database that contains the actual manifest.
 
-	for key, value in navsManifest.items():
-		with open(value, 'rb') as f:
-			navBytes = f.read()
+		If "__type__" == "direct":
+			- Must include "__manifest__": The actual image manifest.
 
-		nav = orjson.loads(navBytes)
+	out : str | None, optional
+		File path to write the final database. If None, the database is not
+		written to disk and is only returned.
 
-		navScripts[key] = nav
+	rawOut : str | None, optional
+		File path to write the raw extracted data from navigation scripts before node evaluation.\
+		If None, raw data is not written to disk.
 
-	# fetch plain html pages
+	logSRC : str | None, optional
+		File path for logging errors during navigation script evaluation.
+		If provided, errors are written to this file. If None, no log file
+		is created.
 
-	session = Fetcher._get_session()
+	stall : float, default=2.0
+		Time in seconds to wait between consecutive fetch requests.
 
-	fetchData = Fetcher.fetchTextBatch(fetchManifest, session, stall)
+	Returns
+	-------
+	dict
+		The constructed database object.
+	'''
 
-	# process plain html pages
 
-	for key, value in fetchData.items():
-		fetchData[key] = bs4.BeautifulSoup(value, 'html.parser')
+	with tqdm(total=100, desc='Making DB') as pbar:
+		startTime = int(time.time() * 1000)
 
-	# extract data from processed html with nav scripts
+		# verify nav files
 
-	navData = {}
+		for src in navsManifest.values():
+			if not os.path.exists(src):
+				raise FileNotFoundError(src)
 
-	for key, nav in navScripts.items():
-		navData[key] = SoupNavigator.eval(nav, fetchData, logFile=logSRC)
+		pbar.update(10)
 
-	# add extra reference data
+		# load nav files
 
-	if extraRef is not None:
-		navData.update(extraRef)
+		navScripts = {}
 
-	# process extracted data with nodes
+		for key, value in navsManifest.items():
+			with open(value, 'rb') as f:
+				navBytes = f.read()
 
-	if nodeSRC is not None and os.path.exists(nodeSRC):
-		with open(nodeSRC, 'rb') as f:
-			nodeBytes = f.read()
+			nav = orjson.loads(navBytes)
 
-		node = orjson.loads(nodeBytes)
+			navScripts[key] = nav
 
-		db = NodeEvaluator.eval(node, navData)
-	else:
-		db = navData
+		pbar.update(10)
 
-	# image collection process
+		# fetch plain html pages
 
-	if imageManifest is not None:
-		# get proper image manifest
+		session = Fetcher._get_session()
 
-		imgDir = imageManifest.get('__dir__', None)
+		fetchData = Fetcher.fetchTextBatch(fetchManifest, session, stall)
 
-		if imgDir is None:
-			raise Exception('image manifest must contain __dir__ key')
+		pbar.update(10)
 
-		manifestType = imageManifest.get('__type__', None)
+		# process plain html pages
 
-		if manifestType is None:
-			raise Exception('image manifest must contain __type__ key')
+		for key, value in fetchData.items():
+			fetchData[key] = bs4.BeautifulSoup(value, 'html.parser')
 
-		if manifestType == 'ref':
-			imageManifest = db.get(imageManifest['__ref__'], None)
-		elif manifestType == 'direct':
-			imageManifest = imageManifest.get('__manifest__', None)
+		pbar.update(10)
 
-		if imageManifest is None:
-			raise Exception('no valid image manifest found')
+		# extract data from processed html with nav scripts
 
-		# collect images
+		navData = {}
 
-		ImageCollector.collectBatch(imageManifest, imgDir, session, stall)
+		for key, nav in navScripts.items():
+			navData[key] = SoupNavigator.eval(nav, fetchData, logFile=logSRC)
 
-	# finalize database / add metadata
+		pbar.update(10)
 
-	metadata = {}
+		# write raw extracted data to disk before node evaluation
 
-	endTime = int(time.time() * 1000)
+		if rawOut is not None:
+			path = os.path.dirname(rawOut)
 
-	metadata['lastUpdate'] = startTime
-	metadata['creationTime'] = endTime - startTime
+			if not os.path.exists(path):
+				os.makedirs(path)
 
-	if isinstance(db, dict):
-		db['__metadata__'] = metadata
-	elif isinstance(db, list):
-		db.append({'__metadata__': metadata})
+			with open(rawOut, 'wb') as f:
+				f.write(orjson.dumps(navData, option=orjson.OPT_INDENT_2))
 
-	# return / write database
+		pbar.update(10)
 
-	if out is not None:
-		path = os.path.dirname(out)
+		# add extra reference data
 
-		if not os.path.exists(path):
-			os.makedirs(path)
+		if extraRef is not None:
+			navData.update(extraRef)
 
-		with open(out, 'wb') as f:
-			f.write(orjson.dumps(db, option=orjson.OPT_INDENT_2))
+		# process extracted data with nodes
 
-	return db
+		if nodeSRC is not None and os.path.exists(nodeSRC):
+			with open(nodeSRC, 'rb') as f:
+				nodeBytes = f.read()
+
+			node = orjson.loads(nodeBytes)
+
+			db = NodeEvaluator.eval(node, navData)
+		else:
+			db = navData
+
+		pbar.update(10)
+
+		# image collection process
+
+		if imageManifest is not None:
+			# get proper image manifest
+
+			imgDir = imageManifest.get('__dir__', None)
+
+			if imgDir is None:
+				raise Exception('image manifest must contain __dir__ key')
+
+			manifestType = imageManifest.get('__type__', None)
+
+			if manifestType is None:
+				raise Exception('image manifest must contain __type__ key')
+
+			if manifestType == 'ref':
+				imageManifest = db.get(imageManifest['__ref__'], None)
+			elif manifestType == 'direct':
+				imageManifest = imageManifest.get('__manifest__', None)
+
+			if imageManifest is None:
+				raise Exception('no valid image manifest found')
+
+			# collect images
+
+			ImageCollector.collectBatch(imageManifest, imgDir, session, stall)
+
+		pbar.update(10)
+
+		# finalize database / add metadata
+
+		metadata = {}
+
+		endTime = int(time.time() * 1000)
+
+		metadata['lastUpdate'] = startTime
+		metadata['creationTime'] = endTime - startTime
+
+		if isinstance(db, dict):
+			db['__metadata__'] = metadata
+		elif isinstance(db, list):
+			db.append({'__metadata__': metadata})
+
+		pbar.update(10)
+
+		# return / write database
+
+		if out is not None:
+			path = os.path.dirname(out)
+
+			if not os.path.exists(path):
+				os.makedirs(path)
+
+			with open(out, 'wb') as f:
+				f.write(orjson.dumps(db, option=orjson.OPT_INDENT_2))
+
+		pbar.update(10)
+
+		return db

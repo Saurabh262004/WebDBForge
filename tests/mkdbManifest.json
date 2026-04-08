@@ -16,5 +16,6 @@
 		}
 	},
 	"out": "tests/out.json",
+	"rawOut": "tests/raw.json",
 	"logSRC": "tests/log"
 }
