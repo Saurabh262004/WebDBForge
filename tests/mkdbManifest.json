@@ -1,7 +1,9 @@
 {
 	"fetchManifest": {
 		"genshinCharacters": "https://genshin-impact.fandom.com/wiki/Character/List",
-		"genshinWeapons": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Weapon_Type"
+		"genshinWeapons": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Weapon_Type",
+		"zenlessAgents": "https://zenless-zone-zero.fandom.com/wiki/Agent/List",
+		"zenlessWEngines": "https://zenless-zone-zero.fandom.com/wiki/W-Engine/List"
 	},
 	"navsManifest": {
 		"genshinCharacters": "tests/nav/genshinCharacters.json",

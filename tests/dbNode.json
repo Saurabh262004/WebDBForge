@@ -8,7 +8,7 @@
 			"values": [
 				{
 					"__node__": "dict",
-					"keys": [ "Characters" ],
+					"keys": [ "Characters", "LimitedCharacters", "Weapons" ],
 					"values": [
 						{
 							"__node__": "dict",
@@ -30,8 +30,22 @@
 								"__node__": "zip",
 								"sources": {
 									"__node__": "dict",
-									"keys": [ "Rarity", "Element", "WeaponClass", "Region", "Model", "ReleaseDate", "ReleaseVersion" ],
+									"keys": [ "IconURL", "Rarity", "Element", "WeaponClass", "Region", "Model", "ReleaseDate", "ReleaseVersion" ],
 									"values": [
+										{
+											"__node__": "map",
+											"sources": {
+												"__node__": "get",
+												"from": "genshinCharacters",
+												"access": [ 0 ]
+											},
+											"fun": {
+												"__node__": "fun",
+												"__type__": "get",
+												"sources": "__source__",
+												"from": 0
+											}
+										},
 										{
 											"__node__": "map",
 											"sources": {
@@ -133,6 +147,7 @@
 									]
 								},
 								"build": {
+									"IconURL": "IconURL",
 									"Rarity": "Rarity",
 									"Element": "Element",
 									"WeaponClass": "WeaponClass",
@@ -142,6 +157,532 @@
 									"ReleaseVersion": "ReleaseVersion"
 								}
 							}
+						},
+						{
+							"__node__": "get",
+							"from": "genshinCharacters",
+							"access": [ 1 ]
+						},
+						{
+							"__node__": "dict",
+							"keys": [ "Swords", "Claymores", "Polearms", "Catalysts", "Bows" ],
+							"values": [
+								{
+									"__node__": "dict",
+									"keys": {
+										"__node__": "map",
+										"sources": {
+											"__node__": "get",
+											"from": "genshinWeapons",
+											"access": [ 0 ]
+										},
+										"fun": {
+											"__node__": "fun",
+											"__type__": "get",
+											"sources": "__source__",
+											"from": 1
+										}
+									},
+									"values": {
+										"__node__": "zip",
+										"sources": {
+											"__node__": "dict",
+											"keys": [ "IconURL", "Rarity", "BaseAttack", "2ndStat", "Passive" ],
+											"values": [
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 0 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 0
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 0 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 2
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 0 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 3
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 0 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 4
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 0 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 5
+													}
+												}
+											]
+										},
+										"build": {
+											"IconURL": "IconURL",
+											"Rarity": "Rarity",
+											"BaseAttack": "BaseAttack",
+											"2ndStat": "2ndStat",
+											"Passive": "Passive"
+										}
+									}
+								},
+								{
+									"__node__": "dict",
+									"keys": {
+										"__node__": "map",
+										"sources": {
+											"__node__": "get",
+											"from": "genshinWeapons",
+											"access": [ 1 ]
+										},
+										"fun": {
+											"__node__": "fun",
+											"__type__": "get",
+											"sources": "__source__",
+											"from": 1
+										}
+									},
+									"values": {
+										"__node__": "zip",
+										"sources": {
+											"__node__": "dict",
+											"keys": [ "IconURL", "Rarity", "BaseAttack", "2ndStat", "Passive" ],
+											"values": [
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 1 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 0
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 1 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 2
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 1 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 3
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 1 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 4
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 1 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 5
+													}
+												}
+											]
+										},
+										"build": {
+											"IconURL": "IconURL",
+											"Rarity": "Rarity",
+											"BaseAttack": "BaseAttack",
+											"2ndStat": "2ndStat",
+											"Passive": "Passive"
+										}
+									}
+								},
+								{
+									"__node__": "dict",
+									"keys": {
+										"__node__": "map",
+										"sources": {
+											"__node__": "get",
+											"from": "genshinWeapons",
+											"access": [ 2 ]
+										},
+										"fun": {
+											"__node__": "fun",
+											"__type__": "get",
+											"sources": "__source__",
+											"from": 1
+										}
+									},
+									"values": {
+										"__node__": "zip",
+										"sources": {
+											"__node__": "dict",
+											"keys": [ "IconURL", "Rarity", "BaseAttack", "2ndStat", "Passive" ],
+											"values": [
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 2 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 0
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 2 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 2
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 2 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 3
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 2 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 4
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 2 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 5
+													}
+												}
+											]
+										},
+										"build": {
+											"IconURL": "IconURL",
+											"Rarity": "Rarity",
+											"BaseAttack": "BaseAttack",
+											"2ndStat": "2ndStat",
+											"Passive": "Passive"
+										}
+									}
+								},
+								{
+									"__node__": "dict",
+									"keys": {
+										"__node__": "map",
+										"sources": {
+											"__node__": "get",
+											"from": "genshinWeapons",
+											"access": [ 3 ]
+										},
+										"fun": {
+											"__node__": "fun",
+											"__type__": "get",
+											"sources": "__source__",
+											"from": 1
+										}
+									},
+									"values": {
+										"__node__": "zip",
+										"sources": {
+											"__node__": "dict",
+											"keys": [ "IconURL", "Rarity", "BaseAttack", "2ndStat", "Passive" ],
+											"values": [
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 3 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 0
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 3 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 2
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 3 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 3
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 3 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 4
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 3 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 5
+													}
+												}
+											]
+										},
+										"build": {
+											"IconURL": "IconURL",
+											"Rarity": "Rarity",
+											"BaseAttack": "BaseAttack",
+											"2ndStat": "2ndStat",
+											"Passive": "Passive"
+										}
+									}
+								},
+								{
+									"__node__": "dict",
+									"keys": {
+										"__node__": "map",
+										"sources": {
+											"__node__": "get",
+											"from": "genshinWeapons",
+											"access": [ 4 ]
+										},
+										"fun": {
+											"__node__": "fun",
+											"__type__": "get",
+											"sources": "__source__",
+											"from": 1
+										}
+									},
+									"values": {
+										"__node__": "zip",
+										"sources": {
+											"__node__": "dict",
+											"keys": [ "IconURL", "Rarity", "BaseAttack", "2ndStat", "Passive" ],
+											"values": [
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 4 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 0
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 4 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 2
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 4 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 3
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 4 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 4
+													}
+												},
+												{
+													"__node__": "map",
+													"sources": {
+														"__node__": "get",
+														"from": "genshinWeapons",
+														"access": [ 4 ]
+													},
+													"fun": {
+														"__node__": "fun",
+														"__type__": "get",
+														"sources": "__source__",
+														"from": 5
+													}
+												}
+											]
+										},
+										"build": {
+											"IconURL": "IconURL",
+											"Rarity": "Rarity",
+											"BaseAttack": "BaseAttack",
+											"2ndStat": "2ndStat",
+											"Passive": "Passive"
+										}
+									}
+								}
+							]
 						}
 					]
 				}
