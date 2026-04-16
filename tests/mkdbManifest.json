@@ -7,7 +7,9 @@
 	},
 	"navsManifest": {
 		"genshinCharacters": "tests/nav/genshinCharacters.json",
-		"genshinWeapons": "tests/nav/genshinWeapons.json"
+		"genshinWeapons": "tests/nav/genshinWeapons.json",
+		"zenlessAgents": "tests/nav/zenlessAgents.json",
+		"zenlessWEngines": "tests/nav/zenlessWEngines.json"
 	},
 	"nodeSRC": "tests/dbNode.json",
 	"out": "tests/out.json",
